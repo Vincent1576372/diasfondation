@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><title>Administration – DIAS FONDATION</title>
+<style>
+:root{--navy:#0A1931;--blue:#1E3A8A;--gold:#EAB308;--bg:#f3f6fc;--card:#fff;--ink:#14213d;--mut:#5b6270;--line:#dfe5f1;padding-top:env(safe-area-inset-top,0)}
+@media(prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#141f38;--ink:#f1f3f8;--mut:#a9b3c8;--line:#26314d}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Arial,sans-serif}
+.box{max-width:380px;margin:12vh auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+h1{font-size:20px;margin:0 0 4px;color:var(--blue)}@media(prefers-color-scheme:dark){h1{color:#fff}}
+input,select,button{font:inherit}input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:10px;background:var(--bg);color:var(--ink)}
+button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}.pri{background:var(--gold);color:#111;width:100%;margin-top:14px}
+#er{color:#d1121f;margin-top:10px;font-size:14px}
+header{background:var(--navy);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}header b{font-size:16px}
+header button{background:rgba(255,255,255,.15);color:#fff}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px}.bar input,.bar select{margin:0;flex:1;min-width:140px}.bar button{background:var(--blue);color:#fff}
+#list{padding:0 16px 40px;display:grid;gap:12px;max-width:900px;margin:auto}
+.c{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}.c h3{margin:0 0 4px;font-size:16px}
+.c .m{color:var(--mut);font-size:13px}.c a{color:var(--blue);font-weight:600}.b{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;margin-left:6px}
+.en_attente{background:#fef3c7;color:#92400e}.valide{background:#dcfce7;color:#166534}.rejete{background:#fee2e2;color:#991b1b}
+.act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.act button{flex:1;min-width:110px}.ok{background:#16a34a;color:#fff}.no{background:#dc2626;color:#fff}.wt{background:var(--line);color:var(--ink)}
+.tx{font-family:ui-monospace,monospace;background:var(--bg);padding:2px 6px;border-radius:6px}
+</style></head><body>
+<div id="login" class="box"><h1>Administration DIAS FONDATION</h1><div class="m" style="color:var(--mut)">Accès réservé à l'équipe.</div>
+<input id="em" type="email" placeholder="E-mail" autocomplete="username"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password">
+<button class="pri" id="lg">Se connecter</button><div id="er"></div></div>
+<div id="app" style="display:none"><header><b>DIAS FONDATION • Demandes</b><span id="cnt"></span><button id="lo">Déconnexion</button></header>
+<div class="bar"><input id="q" placeholder="Rechercher (nom, téléphone, référence)"><select id="fl"><option value="">Tous</option><option value="en_attente">En attente</option><option value="valide">Validés</option><option value="rejete">Rejetés</option></select><button id="ex">Exporter CSV</button></div>
+<div id="list"></div></div>
+<script src="dias-config.js"></script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,query,orderBy,onSnapshot,doc,updateDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const $=i=>document.getElementById(i),FB=(window.DIAS||{}).firebase||{};
+if(!FB.apiKey||!FB.projectId){$("er").textContent="Firebase n'est pas encore configuré (fichier dias-config.js).";$("lg").disabled=true}
+else{
+const app=initializeApp(FB),auth=getAuth(app),db=getFirestore(app);let rows=[],unsub=null;
+$("lg").onclick=async()=>{$("er").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value,$("pw").value)}catch(e){$("er").textContent="Connexion refusée : vérifiez l'e-mail et le mot de passe."}};
+$("lo").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,u=>{if(unsub){unsub();unsub=null}$("login").style.display=u?"none":"block";$("app").style.display=u?"block":"none";
+ if(u)unsub=onSnapshot(query(collection(db,"adhesions"),orderBy("createdAt","desc")),s=>{rows=s.docs.map(d=>({id:d.id,...d.data()}));draw()},e=>{$("list").textContent="Accès refusé : ce compte n'est pas administrateur.";});});
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const lab={en_attente:"En attente",valide:"Validé",rejete:"Rejeté"};
+function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L.textContent="";
+ const v=rows.filter(r=>(!f||r.statut===f)&&(!q||[r.nom,r.telephone,r.ref,r.email].join(" ").toLowerCase().includes(q)));
+ $("cnt").textContent=v.length+" / "+rows.length;
+ v.forEach(r=>{const c=el("div","c"),h=el("h3",null,r.nom||"(sans nom)"),b=el("span","b "+r.statut,lab[r.statut]||r.statut);h.append(b);c.append(h);
+  const dt=r.createdAt&&r.createdAt.toDate?r.createdAt.toDate().toLocaleString("fr-FR"):"";
+  c.append(el("div","m",(r.type||"")+" • "+dt+" • "+(r.ref||"")));
+  const p=el("div","m");const tel=(r.telephone||"").replace(/[^\d]/g,"");const a=el("a",null,r.telephone||"");a.href="https://wa.me/"+tel;a.target="_blank";a.rel="noopener";
+  p.append("Tél : ",a," • ",r.email||"—"," • ",r.ville||"—");c.append(p);
+  if(r.paiement||r.transactionId){const q2=el("div","m");q2.append((r.paiement||"")+" "+(r.numeroPaiement||"")+" • ID : ");q2.append(el("span","tx",r.transactionId||"—"));q2.append(" • "+(r.montant||""));c.append(q2)}
+  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{bt.disabled=true;try{await updateDoc(doc(db,"adhesions",r.id),{statut:s,traiteLe:new Date().toISOString()})}catch(e){alert("Action refusée.")}};A.append(bt)});
+  c.append(A);L.append(c)});
+ if(!v.length)L.append(el("div","m","Aucune demande."))}
+$("q").oninput=draw;$("fl").onchange=draw;
+$("ex").onclick=()=>{const k=["ref","type","statut","nom","telephone","email","ville","paiement","numeroPaiement","transactionId","montant"];
+ const csv=[k.join(",")].concat(rows.map(r=>k.map(x=>'"'+String(r[x]==null?"":r[x]).replace(/"/g,'""')+'"').join(","))).join("\n");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));a.download="adhesions-dias.csv";a.click()};
+}
+</script></body></html>

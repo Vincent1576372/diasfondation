@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Remplacez par l'e-mail du compte administrateur créé dans Firebase Authentication
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in ['REMPLACER_PAR_EMAIL_ADMIN@exemple.com'];
+    }
+    match /adhesions/{id} {
+      // Tout visiteur peut envoyer une demande, mais jamais la lire
+      allow create: if request.resource.data.keys().hasOnly(['type','ref','statut','montant','nom','telephone','email','ville','paiement','numeroPaiement','transactionId','createdAt'])
+        && request.resource.data.statut == 'en_attente'
+        && request.resource.data.nom is string && request.resource.data.nom.size() > 1 && request.resource.data.nom.size() < 120
+        && request.resource.data.telephone is string && request.resource.data.telephone.size() < 40
+        && request.resource.data.createdAt is timestamp;
+      // Seule l'équipe lit et valide
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
