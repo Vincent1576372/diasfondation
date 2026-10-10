@@ -125,16 +125,18 @@ $("dm-pay").textContent=HASPAY?"Payez 120 $ sur l'un des numéros ci-dessous (au
 $("dm-px").style.display=HASPAY?"block":"none";$("dm-num").required=HASPAY;$("dm-id").required=HASPAY;
 $("dm-pb").textContent=HASPAY?"J'ai effectué le paiement":"Envoyer ma demande";show("dm-g")});
 $("dm-g").addEventListener("submit",function(e){e.preventDefault();send(HASPAY?{paiement:$("dm-m").value,numeroPaiement:$("dm-num").value.trim(),transactionId:$("dm-id").value.trim()}:{})});
+function rid(){var a="ABCDEFGHJKMNPQRSTUVWXYZ23456789",u=new Uint32Array(8),r="";crypto.getRandomValues(u);for(var i=0;i<8;i++)r+=a[u[i]%a.length];return "DIAS-"+r}
 async function save(data){if(!FB.apiKey||!FB.projectId)return false;var f={};Object.keys(data).forEach(function(k){if(data[k]!==""&&data[k]!=null)f[k]={stringValue:String(data[k])}});
 f.createdAt={timestampValue:new Date().toISOString()};
 var r=await fetch("https://firestore.googleapis.com/v1/projects/"+FB.projectId+"/databases/(default)/documents/adhesions?key="+FB.apiKey,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:f})});return r.ok}
-async function send(extra){var ref="DIAS-"+Date.now().toString(36).toUpperCase();
+async function send(extra){var ref=rid();
 var data=Object.assign({type:amb()?"Ambassadeur":"Adhésion Premium",ref:ref,statut:"en_attente",montant:amb()?"":"120 USD / an"},info,extra);
 show("dm-r");$("dm-r").textContent="Envoi en cours…";var ok=false;try{ok=await save(data)}catch(x){}
 var msg=data.type+" DIAS FONDATION\nRéf : "+ref+"\nNom : "+data.nom+"\nTéléphone : "+data.telephone+"\nE-mail : "+(data.email||"")+"\nVille/Pays : "+(data.ville||"")+(data.transactionId?"\nPaiement : "+data.paiement+" "+data.numeroPaiement+" • ID "+data.transactionId:"");
 var wa=WA?'<a class="dm-b" style="display:block;text-align:center;text-decoration:none;margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/'+WA+'?text='+encodeURIComponent(msg)+'">Envoyer aussi sur WhatsApp</a>':"";
 $("dm-s").textContent="";
-if(ok)$("dm-r").innerHTML="<b>Demande envoyée : vérification en cours.</b><br>Référence : "+ref+"<br>L'équipe DIAS vérifie votre demande"+(amb()?"":" et votre paiement")+", puis vous contacte."+wa;
+if(ok&&!amb()){try{localStorage.setItem("dias_ref",ref)}catch(x){}}
+if(ok)$("dm-r").innerHTML="<b>Demande envoyée : vérification en cours.</b><br>Votre numéro de membre : <b>"+ref+"</b><br>Après la validation par l'équipe, ouvrez « Espace Membre » et créez votre compte avec l'e-mail de cette fiche.<br>L'équipe DIAS vérifie votre demande"+(amb()?"":" et votre paiement")+", puis vous contacte."+wa;
 else if(WA)$("dm-r").innerHTML="<b>Dernière étape</b><br>Référence : "+ref+"<br>Appuyez ci-dessous pour transmettre votre demande à l'équipe sur WhatsApp."+wa;
 else $("dm-r").innerHTML="<b>Service en cours d'activation</b><br>L'envoi des demandes n'est pas encore activé : votre demande n'a pas été transmise. Merci de réessayer très bientôt."}
 d.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button");if(!b||b.closest("#dias-modal"))return;
