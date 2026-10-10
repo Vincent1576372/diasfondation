@@ -19,18 +19,27 @@ header button{background:rgba(255,255,255,.15);color:#fff}
 .en_attente{background:#fef3c7;color:#92400e}.valide{background:#dcfce7;color:#166534}.rejete{background:#fee2e2;color:#991b1b}
 .act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.act button{flex:1;min-width:110px}.ok{background:#16a34a;color:#fff}.no{background:#dc2626;color:#fff}.wt{background:var(--line);color:var(--ink)}
 .wa{display:block;text-align:center;text-decoration:none;background:#25D366;color:#073b1a!important;font-weight:700;padding:11px 14px;border-radius:10px;flex:1 1 100%}.tx{font-family:ui-monospace,monospace;background:var(--bg);padding:2px 6px;border-radius:6px}
+.tb{display:flex;gap:8px;padding:12px 16px 0}.tb button{flex:1;background:var(--line);color:var(--ink)}.tb button.on{background:var(--blue);color:#fff}
+.fm{max-width:900px;margin:12px auto;padding:0 16px}.fm .c{display:grid;gap:8px}textarea{width:100%;min-height:90px;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--bg);color:var(--ink);margin-top:0}
+.fm input,.fm select{margin-top:0}.bar .sy{background:#16a34a}.off{opacity:.6}
 </style></head><body>
 <div id="login" class="box"><h1>Administration DIAS FONDATION</h1><div class="m" style="color:var(--mut)">Accès réservé à l'équipe.</div>
 <input id="em" type="email" placeholder="E-mail" autocomplete="username"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password">
 <button class="pri" id="lg">Se connecter</button><div id="er"></div></div>
 <div id="app" style="display:none"><header><b>DIAS FONDATION • Demandes</b><span id="cnt"></span><button id="lo">Déconnexion</button></header>
-<div class="bar"><input id="q" placeholder="Rechercher (nom, téléphone, référence)"><select id="fl"><option value="">Tous</option><option value="en_attente">En attente</option><option value="valide">Validés</option><option value="rejete">Rejetés</option></select><button id="ex">Exporter CSV</button></div>
+<div class="tb"><button id="tb1" class="on">Demandes</button><button id="tb2">Publications</button></div>
+<div id="sec1"><div class="bar"><input id="q" placeholder="Rechercher (nom, téléphone, référence)"><select id="fl"><option value="">Tous</option><option value="en_attente">En attente</option><option value="valide">Validés</option><option value="rejete">Rejetés</option></select><button id="ex">Exporter CSV</button><button id="sy" class="sy">Synchroniser les accès</button></div>
 <div id="list"></div></div>
+<div id="sec2" hidden><div class="fm"><div class="c" id="pf">
+<select id="pc"><option value="evenement">📅 Événement</option><option value="opportunite">💼 Opportunité</option><option value="emploi">👔 Offre d'emploi</option><option value="offre">🎁 Offre spéciale</option></select>
+<input id="pt" placeholder="Titre (obligatoire)" maxlength="120"><textarea id="pd" placeholder="Description" maxlength="2000"></textarea>
+<input id="pe" type="date"><input id="pl" placeholder="Lieu (facultatif)" maxlength="120"><input id="pk" placeholder="Lien https://... (facultatif)" maxlength="300"><input id="pn" placeholder="Contact : numéro WhatsApp ou texte (facultatif)" maxlength="120">
+<button class="pri" id="pb" style="margin-top:4px">Publier</button><div id="pm" style="font-size:14px"></div></div></div><div id="plist"></div></div></div>
 <script src="dias-config.js"></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,onSnapshot,doc,updateDoc,setDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,onSnapshot,doc,updateDoc,setDoc,deleteDoc,addDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const $=i=>document.getElementById(i),FB=(window.DIAS||{}).firebase||{};
 if(!FB.apiKey||!FB.projectId){$("er").textContent="Firebase n'est pas encore configuré (fichier dias-config.js).";$("lg").disabled=true}
 else{
@@ -52,11 +61,29 @@ function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L
   if(r.paiement||r.transactionId){const q2=el("div","m");q2.append((r.paiement||"")+" "+(r.numeroPaiement||"")+" • ID : ");q2.append(el("span","tx",r.transactionId||"—"));q2.append(" • "+(r.montant||""));c.append(q2)}
   const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso};if(s==="valide"){const x=new Date();x.setFullYear(x.getFullYear()+1);u.expireLe=x.toISOString()}
 await updateDoc(doc(db,"adhesions",r.id),u);
-if(s==="valide"&&r.type==="Adhésion Premium")await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",expireLe:u.expireLe,valideLe:iso});
-else await deleteDoc(doc(db,"membres",r.ref))}catch(e){alert("Action refusée.")}};A.append(bt)});
+if(s==="valide"&&r.type==="Adhésion Premium"){await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",expireLe:u.expireLe,valideLe:iso});await grant(r,u.expireLe)}
+else{await deleteDoc(doc(db,"membres",r.ref));const k=eid(r);if(k)await deleteDoc(doc(db,"membres_email",k))}}catch(e){alert("Action refusée.")}};A.append(bt)});
   if(r.statut==="valide"&&r.type==="Adhésion Premium"&&tel){const base=location.origin+location.pathname.replace(/[^\/]*$/,"")+"membre.html";const w=el("a","wa","Envoyer la carte sur WhatsApp");w.href="https://wa.me/"+tel+"?text="+encodeURIComponent("Bonjour "+(r.nom||"")+", votre adhésion DIAS FONDATION est validée ✅. Pour voir votre carte : ouvrez "+base+" , créez votre compte avec l'e-mail de votre fiche, confirmez-le, puis connectez-vous. Votre numéro de membre : "+r.ref);w.target="_blank";w.rel="noopener";A.append(w)}
 c.append(A);L.append(c)});
  if(!v.length)L.append(el("div","m","Aucune demande."))}
+const eid=r=>String(r.email||"").trim().toLowerCase();
+async function grant(r,exp){const k=eid(r);if(!k||!exp)return;await setDoc(doc(db,"membres_email",k),{ref:r.ref||"",nom:r.nom||"",expireLe:new Date(exp)})}
+$("tb1").onclick=()=>tab(1);$("tb2").onclick=()=>tab(2);
+function tab(n){$("sec1").hidden=n!==1;$("sec2").hidden=n!==2;$("tb1").className=n===1?"on":"";$("tb2").className=n===2?"on":""}
+$("sy").onclick=async()=>{let n=0;for(const r of rows){if(r.statut==="valide"&&r.type==="Adhésion Premium"&&eid(r)&&r.expireLe){try{await grant(r,r.expireLe);n++}catch(e){}}}alert(n+" accès synchronisé(s).")};
+let pu=null;const CATL={evenement:"📅 Événement",opportunite:"💼 Opportunité",emploi:"👔 Offre d'emploi",offre:"🎁 Offre spéciale"};let prows=[];
+onAuthStateChanged(auth,u2=>{if(pu){pu();pu=null}if(u2)pu=onSnapshot(query(collection(db,"publications"),orderBy("createdAt","desc")),s=>{prows=s.docs.map(d=>({id:d.id,...d.data()}));pdraw()},e=>{$("plist").textContent="Accès refusé."})});
+function pdraw(){const L=$("plist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:auto;padding:0 16px 40px;display:grid;gap:12px";
+ prows.forEach(p=>{const c=el("div","c"+(p.publie?"":" off"));const h=el("h3",null,p.titre||"");h.append(el("span","b "+(p.publie?"valide":"en_attente"),p.publie?"Publié":"Masqué"));c.append(h);
+  c.append(el("div","m",(CATL[p.categorie]||"")+(p.dateEvenement?" • "+p.dateEvenement:"")+(p.lieu?" • "+p.lieu:"")));if(p.description)c.append(el("div",null,p.description));
+  const A=el("div","act");const t=el("button","wt",p.publie?"Masquer":"Publier");t.onclick=async()=>{try{await updateDoc(doc(db,"publications",p.id),{publie:!p.publie})}catch(e){alert("Action refusée.")}};
+  const d=el("button","no","Supprimer");d.onclick=async()=>{if(confirm("Supprimer cette publication ?")){try{await deleteDoc(doc(db,"publications",p.id))}catch(e){alert("Action refusée.")}}};A.append(t,d);c.append(A);w.append(c)});
+ if(!prows.length)w.append(el("div","m","Aucune publication."));L.append(w)}
+$("pb").onclick=async()=>{const t=$("pt").value.trim(),m=$("pm");m.textContent="";if(!t){m.textContent="Le titre est obligatoire.";m.style.color="#d1121f";return}
+ let k=$("pk").value.trim();if(k&&!/^https?:\/\//i.test(k)){m.textContent="Le lien doit commencer par https://";m.style.color="#d1121f";return}
+ if($("pc").value==="evenement"&&!$("pe").value){m.textContent="Choisissez la date de l'événement.";m.style.color="#d1121f";return}
+ try{await addDoc(collection(db,"publications"),{categorie:$("pc").value,titre:t,description:$("pd").value.trim(),dateEvenement:$("pc").value==="evenement"?$("pe").value:"",lieu:$("pl").value.trim(),lien:k,contact:$("pn").value.trim(),publie:true,createdAt:new Date()});
+  ["pt","pd","pe","pl","pk","pn"].forEach(i=>$(i).value="");m.textContent="Publié ✓";m.style.color="#16a34a"}catch(e){m.textContent="Publication refusée.";m.style.color="#d1121f"}};
 $("q").oninput=draw;$("fl").onchange=draw;
 $("ex").onclick=()=>{const k=["ref","type","statut","nom","telephone","email","ville","paiement","numeroPaiement","transactionId","montant"];
  const csv=[k.join(",")].concat(rows.map(r=>k.map(x=>'"'+String(r[x]==null?"":r[x]).replace(/"/g,'""')+'"').join(","))).join("\n");
