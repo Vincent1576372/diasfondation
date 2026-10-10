@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Vérification membre – DIAS FONDATION</title>
+<style>body{margin:0;background:#f3f6fc;color:#14213d;font:16px/1.5 system-ui,Arial,sans-serif;display:grid;place-items:center;min-height:100vh;padding:20px}
+.c{max-width:380px;width:100%;background:#fff;border-radius:18px;padding:26px;text-align:center;box-shadow:0 20px 40px -24px rgba(10,25,49,.5)}
+.ok{color:#166534}.no{color:#991b1b}h1{font-size:18px;margin:0 0 14px;color:#1E3A8A}.big{font-size:44px}b{font-size:20px}a{color:#1E3A8A}</style></head><body>
+<div class="c"><h1>DIAS FONDATION • Vérification de carte</h1><div id="r">Vérification en cours…</div><p><a href="index.html">Retour au site</a></p></div>
+<script src="dias-config.js"></script>
+<script>
+(function(){var r=document.getElementById("r"),F=(window.DIAS||{}).firebase||{},ref=new URLSearchParams(location.search).get("ref");
+function bad(t){r.innerHTML='<div class="big no">✗</div><div class="no"></div>';r.lastChild.textContent=t}
+if(!ref||!F.projectId){bad("Carte non reconnue.");return}
+fetch("https://firestore.googleapis.com/v1/projects/"+F.projectId+"/databases/(default)/documents/membres/"+encodeURIComponent(ref)+"?key="+F.apiKey)
+.then(function(x){if(!x.ok)throw 0;return x.json()}).then(function(d){var f=d.fields||{},g=function(k){return f[k]&&f[k].stringValue||""};
+ var exp=g("expireLe")?new Date(g("expireLe")):null;
+ if(g("statut")==="valide"&&(!exp||exp>=new Date())){r.innerHTML='<div class="big ok">✓</div><div class="ok"><b></b><br>Membre Premium valide<br><span id="n"></span><br><span id="e"></span></div>';
+  r.querySelector("b").textContent=g("nom");document.getElementById("n").textContent="N° "+g("ref");document.getElementById("e").textContent=exp?"Valable jusqu'au "+exp.toLocaleDateString("fr-FR"):""}
+ else bad("Adhésion expirée ou non valide.")}).catch(function(){bad("Aucun membre trouvé pour ce numéro.")})})();
+</script></body></html>

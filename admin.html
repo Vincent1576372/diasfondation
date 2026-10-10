@@ -30,7 +30,7 @@ header button{background:rgba(255,255,255,.15);color:#fff}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,onSnapshot,doc,updateDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,onSnapshot,doc,updateDoc,setDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const $=i=>document.getElementById(i),FB=(window.DIAS||{}).firebase||{};
 if(!FB.apiKey||!FB.projectId){$("er").textContent="Firebase n'est pas encore configuré (fichier dias-config.js).";$("lg").disabled=true}
 else{
@@ -50,7 +50,10 @@ function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L
   const p=el("div","m");const tel=(r.telephone||"").replace(/[^\d]/g,"");const a=el("a",null,r.telephone||"");a.href="https://wa.me/"+tel;a.target="_blank";a.rel="noopener";
   p.append("Tél : ",a," • ",r.email||"—"," • ",r.ville||"—");c.append(p);
   if(r.paiement||r.transactionId){const q2=el("div","m");q2.append((r.paiement||"")+" "+(r.numeroPaiement||"")+" • ID : ");q2.append(el("span","tx",r.transactionId||"—"));q2.append(" • "+(r.montant||""));c.append(q2)}
-  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{bt.disabled=true;try{await updateDoc(doc(db,"adhesions",r.id),{statut:s,traiteLe:new Date().toISOString()})}catch(e){alert("Action refusée.")}};A.append(bt)});
+  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso};if(s==="valide"){const x=new Date();x.setFullYear(x.getFullYear()+1);u.expireLe=x.toISOString()}
+await updateDoc(doc(db,"adhesions",r.id),u);
+if(s==="valide"&&r.type==="Adhésion Premium")await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",expireLe:u.expireLe,valideLe:iso});
+else await deleteDoc(doc(db,"membres",r.ref))}catch(e){alert("Action refusée.")}};A.append(bt)});
   c.append(A);L.append(c)});
  if(!v.length)L.append(el("div","m","Aucune demande."))}
 $("q").oninput=draw;$("fl").onchange=draw;

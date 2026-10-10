@@ -40,7 +40,7 @@ header{transition:box-shadow .3s}header[data-sc]{box-shadow:0 8px 24px -12px rgb
 #dm-r{display:none;margin-top:14px;background:#f3f6fc;border-left:5px solid #EAB308;padding:14px;border-radius:10px;font-size:14px}
 @media(max-width:1023px){
 header .shrink-0>.lg\:hidden{display:none!important}
-header .shrink-0>button:not(:last-child){display:none!important}
+header .shrink-0>button:not(:last-child){padding:8px 10px!important;font-size:11px!important;white-space:nowrap}
 header .shrink-0>button{padding:10px 14px;font-size:12px;white-space:nowrap}
 header img.rounded-full{width:46px!important;height:46px!important}
 header>.lg\:hidden{padding-top:6px!important;padding-bottom:6px!important}
@@ -112,12 +112,12 @@ function show(id){["dm-f","dm-g","dm-r"].forEach(function(x){$(x).style.display=
 function amb(){return /Ambassadeur/.test(type)}
 function open(t){type=t;$("dm-t").textContent=amb()?"Devenir Ambassadeur DIAS":"Adhésion Premium DIAS FONDATION";
 $("dm-s").textContent=amb()?"Représentez la fondation dans votre province.":"Adhésion Premium : 120 $ par an. Étape 1 sur 2 : vos informations.";
-$("dm-go").textContent=amb()?"Envoyer ma demande":"Continuer vers le paiement →";show("dm-f");m.classList.add("on");d.body.style.overflow="hidden"}
+$("dm-go").textContent=amb()?"Envoyer ma demande":"Continuer vers le paiement →";$("dm-e").required=!amb();show("dm-f");m.classList.add("on");d.body.style.overflow="hidden"}
 function close(){m.classList.remove("on");d.body.style.overflow=""}
 m.addEventListener("click",function(e){if(e.target===m||e.target.className==="dm-x")close()});
 $("dm-bk").onclick=function(){$("dm-s").textContent="Adhésion Premium : 120 $ par an. Étape 1 sur 2 : vos informations.";show("dm-f")};
 $("dm-f").addEventListener("submit",function(e){e.preventDefault();if($("dm-h").value)return;
-info={nom:$("dm-n").value.trim(),telephone:$("dm-p").value.trim(),email:$("dm-e").value.trim(),ville:$("dm-v").value.trim()};
+info={nom:$("dm-n").value.trim(),telephone:$("dm-p").value.trim(),email:$("dm-e").value.trim().toLowerCase(),ville:$("dm-v").value.trim()};
 if(amb()){send({});return}
 $("dm-s").textContent="Adhésion Premium : 120 $ par an. Étape 2 sur 2 : paiement.";
 var L=[];if(PAY.mpesa)L.push("M-Pesa : "+PAY.mpesa);if(PAY.airtel)L.push("Airtel Money : "+PAY.airtel);if(PAY.orange)L.push("Orange Money : "+PAY.orange);
@@ -139,6 +139,7 @@ else if(WA)$("dm-r").innerHTML="<b>Dernière étape</b><br>Référence : "+ref+"
 else $("dm-r").innerHTML="<b>Service en cours d'activation</b><br>L'envoi des demandes n'est pas encore activé : votre demande n'a pas été transmise. Merci de réessayer très bientôt."}
 d.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button");if(!b||b.closest("#dias-modal"))return;
 var tx=(b.innerText||"").trim();if(!tx||tx==="×"||/^\uD83C[\uDDE6-\uDDFF]/.test(tx))return;
+var sh=b.closest("header .shrink-0");if(sh){var bs=[].filter.call(sh.children,function(x){return x.tagName==="BUTTON"});if(bs.length>1&&b===bs[0]){e.preventDefault();e.stopPropagation();location.href="membre.html";return}}
 e.preventDefault();e.stopPropagation();open(b.closest("#ambassadeur")?"Candidature Ambassadeur DIAS":"Adhésion Premium DIAS FONDATION")},true);
 })();
 </script>
