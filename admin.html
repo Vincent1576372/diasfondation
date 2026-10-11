@@ -19,7 +19,7 @@ header button{background:rgba(255,255,255,.15);color:#fff}
 .en_attente{background:#fef3c7;color:#92400e}.valide{background:#dcfce7;color:#166534}.rejete{background:#fee2e2;color:#991b1b}
 .act{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.act button{flex:1;min-width:110px}.ok{background:#16a34a;color:#fff}.no{background:#dc2626;color:#fff}.wt{background:var(--line);color:var(--ink)}
 .wa{display:block;text-align:center;text-decoration:none;background:#25D366;color:#073b1a!important;font-weight:700;padding:11px 14px;border-radius:10px;flex:1 1 100%}.tx{font-family:ui-monospace,monospace;background:var(--bg);padding:2px 6px;border-radius:6px}
-.tb{display:flex;gap:8px;padding:12px 16px 0}.tb button{flex:1;background:var(--line);color:var(--ink)}.tb button.on{background:var(--blue);color:#fff}
+.tb{display:flex;gap:8px;padding:12px 16px 0;overflow-x:auto}.tb button{flex:1 0 auto;white-space:nowrap;background:var(--line);color:var(--ink)}.tb button.on{background:var(--blue);color:#fff}
 .fm{max-width:900px;margin:12px auto;padding:0 16px}.fm .c{display:grid;gap:8px}textarea{width:100%;min-height:90px;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--bg);color:var(--ink);margin-top:0}
 .fm input,.fm select{margin-top:0}.bar .sy{background:#16a34a}.off{opacity:.6}
 </style></head><body>
@@ -27,9 +27,10 @@ header button{background:rgba(255,255,255,.15);color:#fff}
 <input id="em" type="email" placeholder="E-mail" autocomplete="username"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password">
 <button class="pri" id="lg">Se connecter</button><div id="er"></div></div>
 <div id="app" style="display:none"><header><b>DIAS FONDATION • Demandes</b><span id="cnt"></span><button id="lo">Déconnexion</button></header>
-<div class="tb"><button id="tb1" class="on">Demandes</button><button id="tb2">Publications</button></div>
+<div class="tb"><button id="tb1" class="on">Demandes</button><button id="tb2">Publications</button><button id="tb3">Réseau</button><button id="tb4">Partenaires</button></div>
 <div id="sec1"><div class="bar"><input id="q" placeholder="Rechercher (nom, téléphone, référence)"><select id="fl"><option value="">Tous</option><option value="en_attente">En attente</option><option value="valide">Validés</option><option value="rejete">Rejetés</option></select><button id="ex">Exporter CSV</button><button id="sy" class="sy">Synchroniser les accès</button></div>
 <div id="list"></div></div>
+<div id="sec3" hidden><div id="nlist"></div></div><div id="sec4" hidden><div id="qlist"></div></div>
 <div id="sec2" hidden><div class="fm"><div class="c" id="pf">
 <select id="pc"><option value="evenement">📅 Événement</option><option value="opportunite">💼 Opportunité</option><option value="emploi">👔 Offre d'emploi</option><option value="offre">🎁 Offre spéciale</option><option value="international">🌍 Connexion internationale</option><option value="pub">📢 Espace publicitaire</option></select>
 <input id="pt" placeholder="Titre (obligatoire)" maxlength="120"><textarea id="pd" placeholder="Description" maxlength="2000"></textarea>
@@ -67,8 +68,8 @@ c.append(A);L.append(c)});
  if(!v.length)L.append(el("div","m","Aucune demande."))}
 const eid=r=>String(r.email||"").trim().toLowerCase();
 async function grant(r){const k=eid(r);if(!k)return;await setDoc(doc(db,"membres_email",k),{ref:r.ref||"",nom:r.nom||""})}
-$("tb1").onclick=()=>tab(1);$("tb2").onclick=()=>tab(2);
-function tab(n){$("sec1").hidden=n!==1;$("sec2").hidden=n!==2;$("tb1").className=n===1?"on":"";$("tb2").className=n===2?"on":""}
+[1,2,3,4].forEach(i=>$("tb"+i).onclick=()=>tab(i));
+function tab(n){[1,2,3,4].forEach(i=>{$("sec"+i).hidden=n!==i;$("tb"+i).className=n===i?"on":""})}
 $("sy").onclick=async()=>{let n=0;for(const r of rows){if(r.statut==="valide"&&r.type==="Adhésion Premium"&&eid(r)){try{await grant(r);n++}catch(e){}}}alert(n+" accès synchronisé(s).")};
 let pu=null;const CATL={evenement:"📅 Événement",opportunite:"💼 Opportunité",emploi:"👔 Offre d'emploi",offre:"🎁 Offre spéciale",international:"🌍 Connexion internationale",pub:"📢 Espace publicitaire"};let prows=[];
 onAuthStateChanged(auth,u2=>{if(pu){pu();pu=null}if(u2)pu=onSnapshot(query(collection(db,"publications"),orderBy("createdAt","desc")),s=>{prows=s.docs.map(d=>({id:d.id,...d.data()}));pdraw()},e=>{$("plist").textContent="Accès refusé."})});
@@ -83,6 +84,23 @@ $("pb").onclick=async()=>{const t=$("pt").value.trim(),m=$("pm");m.textContent="
  if($("pc").value==="evenement"&&!$("pe").value){m.textContent="Choisissez la date de l'événement.";m.style.color="#d1121f";return}
  try{await addDoc(collection(db,"publications"),{categorie:$("pc").value,titre:t,description:$("pd").value.trim(),dateEvenement:$("pc").value==="evenement"?$("pe").value:"",lieu:$("pl").value.trim(),lien:k,contact:$("pn").value.trim(),publie:true,createdAt:new Date()});
   ["pt","pd","pe","pl","pk","pn"].forEach(i=>$(i).value="");m.textContent="Publié ✓";m.style.color="#16a34a"}catch(e){m.textContent="Publication refusée.";m.style.color="#d1121f"}};
+let nrows=[],qrows=[],rep={};const subs={};
+const fd=t=>t&&t.toDate?t.toDate().toLocaleString("fr-FR"):"";
+function ndraw(){const L=$("nlist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:12px auto;padding:0 16px 40px;display:grid;gap:12px";
+ nrows.forEach(p=>{const c=el("div","c"+(p.visible?"":" off"));const h=el("h3",null,p.auteurNom||"");h.append(el("span","b "+(p.visible?"valide":"en_attente"),p.visible?"Visible":"Masqué"));c.append(h);
+  c.append(el("div","m",(p.auteurRef||"")+" • "+fd(p.createdAt)));c.append(el("div",null,p.texte||""));const n=rep[p.id]||0;if(n){const w2=el("div","m","⚠️ "+n+" signalement"+(n>1?"s":""));w2.style.color="#d1121f";c.append(w2)}
+  const A=el("div","act");const t=el("button","wt",p.visible?"Masquer":"Afficher");t.onclick=async()=>{try{await updateDoc(doc(db,"reseau",p.id),{visible:!p.visible})}catch(e){alert("Action refusée.")}};
+  const d=el("button","no","Supprimer");d.onclick=async()=>{if(confirm("Supprimer ce message ?")){try{await deleteDoc(doc(db,"reseau",p.id))}catch(e){alert("Action refusée.")}}};A.append(t,d);c.append(A);w.append(c)});
+ if(!nrows.length)w.append(el("div","m","Aucun message."));L.append(w)}
+function qdraw(){const L=$("qlist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:12px auto;padding:0 16px 40px;display:grid;gap:12px";
+ qrows.forEach(p=>{const c=el("div","c");const h=el("h3",null,p.organisation||"");h.append(el("span","b "+(p.statut||"en_attente"),lab[p.statut]||p.statut));c.append(h);
+  c.append(el("div","m",(p.type||"")+" • "+fd(p.createdAt)));const t=(p.telephone||"").replace(/[^\d]/g,"");const x=el("div","m");const a2=el("a",null,p.telephone||"");a2.href="https://wa.me/"+t;a2.target="_blank";a2.rel="noopener";x.append((p.contact||"")+" • ",a2," • "+(p.email||"—"));c.append(x);if(p.message)c.append(el("div",null,p.message));
+  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([tx,k,s])=>{if(p.statut===s)return;const bt=el("button",k,tx);bt.onclick=async()=>{try{await updateDoc(doc(db,"partenaires",p.id),{statut:s})}catch(e){alert("Action refusée.")}};A.append(bt)});c.append(A);w.append(c)});
+ if(!qrows.length)w.append(el("div","m","Aucune demande de partenariat."));L.append(w)}
+onAuthStateChanged(auth,u3=>{for(const k in subs){subs[k]();delete subs[k]}
+ if(u3){subs.n=onSnapshot(query(collection(db,"reseau"),orderBy("createdAt","desc")),s=>{nrows=s.docs.map(d=>({id:d.id,...d.data()}));ndraw()},()=>{});
+  subs.s=onSnapshot(collection(db,"signalements"),s=>{rep={};s.docs.forEach(d=>{const k=d.data().postId;rep[k]=(rep[k]||0)+1});ndraw()},()=>{});
+  subs.p=onSnapshot(query(collection(db,"partenaires"),orderBy("createdAt","desc")),s=>{qrows=s.docs.map(d=>({id:d.id,...d.data()}));qdraw()},()=>{})}});
 $("q").oninput=draw;$("fl").onchange=draw;
 $("ex").onclick=()=>{const k=["ref","type","statut","nom","telephone","email","ville","paiement","numeroPaiement","transactionId","montant"];
  const csv=[k.join(",")].concat(rows.map(r=>k.map(x=>'"'+String(r[x]==null?"":r[x]).replace(/"/g,'""')+'"').join(","))).join("\n");
