@@ -87,10 +87,10 @@ $("pb").onclick=async()=>{const t=$("pt").value.trim(),m=$("pm");m.textContent="
 let nrows=[],qrows=[],rep={};const subs={};
 const fd=t=>t&&t.toDate?t.toDate().toLocaleString("fr-FR"):"";
 function ndraw(){const L=$("nlist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:12px auto;padding:0 16px 40px;display:grid;gap:12px";
- nrows.forEach(p=>{const c=el("div","c"+(p.visible?"":" off"));const h=el("h3",null,p.auteurNom||"");h.append(el("span","b "+(p.visible?"valide":"en_attente"),p.visible?"Visible":"Masqué"));c.append(h);
-  c.append(el("div","m",(p.auteurRef||"")+" • "+fd(p.createdAt)));c.append(el("div",null,p.texte||""));const n=rep[p.id]||0;if(n){const w2=el("div","m","⚠️ "+n+" signalement"+(n>1?"s":""));w2.style.color="#d1121f";c.append(w2)}
-  const A=el("div","act");const t=el("button","wt",p.visible?"Masquer":"Afficher");t.onclick=async()=>{try{await updateDoc(doc(db,"reseau",p.id),{visible:!p.visible})}catch(e){alert("Action refusée.")}};
-  const d=el("button","no","Supprimer");d.onclick=async()=>{if(confirm("Supprimer ce message ?")){try{await deleteDoc(doc(db,"reseau",p.id))}catch(e){alert("Action refusée.")}}};A.append(t,d);c.append(A);w.append(c)});
+ nrows.forEach(p=>{const c=el("div","c"+(p.visible?"":" off"));const h=el("h3",null,p.auteurNom||"");c.append(h);
+  c.append(el("div","m",(p.auteurRef||"")+" • "+(p.province||"")+" • "+fd(p.createdAt)+" • ❤️ "+((p.likes||[]).length)+" • 💬 "+(p.nbComm||0)));c.append(el("div",null,p.texte||""));const n=rep[p.id]||0;if(n){const w2=el("div","m","⚠️ "+n+" signalement"+(n>1?"s":""));w2.style.color="#d1121f";c.append(w2)}
+  if(p.photo&&/^data:image\/jpeg;base64,/.test(p.photo)){const im=el("img");im.src=p.photo;im.style.cssText="max-width:160px;border-radius:10px;margin-top:6px";c.append(im)}
+  const A=el("div","act");const d=el("button","no","Supprimer");d.onclick=async()=>{if(confirm("Supprimer ce message ?")){try{await deleteDoc(doc(db,"reseau",p.id))}catch(e){alert("Action refusée.")}}};A.append(d);c.append(A);w.append(c)});
  if(!nrows.length)w.append(el("div","m","Aucun message."));L.append(w)}
 function qdraw(){const L=$("qlist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:12px auto;padding:0 16px 40px;display:grid;gap:12px";
  qrows.forEach(p=>{const c=el("div","c");const h=el("h3",null,p.organisation||"");h.append(el("span","b "+(p.statut||"en_attente"),lab[p.statut]||p.statut));c.append(h);
