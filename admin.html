@@ -40,15 +40,18 @@ header button{background:rgba(255,255,255,.15);color:#fff}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,onSnapshot,doc,updateDoc,setDoc,deleteDoc,addDoc,getDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,onSnapshot,doc,updateDoc,setDoc,deleteDoc,addDoc,getDoc,getDocs,limit} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const $=i=>document.getElementById(i),FB=(window.DIAS||{}).firebase||{};
 if(!FB.apiKey||!FB.projectId){$("er").textContent="Firebase n'est pas encore configuré (fichier dias-config.js).";$("lg").disabled=true}
 else{
 const app=initializeApp(FB),auth=getAuth(app),db=getFirestore(app);let rows=[],unsub=null;
 $("lg").onclick=async()=>{$("er").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value,$("pw").value)}catch(e){$("er").textContent="Connexion refusée : vérifiez l'e-mail et le mot de passe."}};
 $("lo").onclick=()=>signOut(auth);
-onAuthStateChanged(auth,u=>{if(unsub){unsub();unsub=null}$("login").style.display=u?"none":"block";$("app").style.display=u?"block":"none";
- if(u)unsub=onSnapshot(query(collection(db,"adhesions"),orderBy("createdAt","desc")),s=>{rows=s.docs.map(d=>({id:d.id,...d.data()}));draw()},e=>{$("list").textContent="Accès refusé : ce compte n'est pas administrateur.";});});
+onAuthStateChanged(auth,async u=>{if(unsub){unsub();unsub=null}
+ if(!u){$("login").style.display="block";$("app").style.display="none";return}
+ try{await getDocs(query(collection(db,"adhesions"),limit(1)))}catch(e){$("login").style.display="block";$("app").style.display="none";$("er").textContent="Accès refusé : ce compte n'est pas administrateur.";try{await signOut(auth)}catch(x){}return}
+ $("er").textContent="";$("login").style.display="none";$("app").style.display="block";
+ unsub=onSnapshot(query(collection(db,"adhesions"),orderBy("createdAt","desc")),s=>{rows=s.docs.map(d=>({id:d.id,...d.data()}));draw()},e=>{$("list").textContent="Chargement impossible.";});});
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const lab={en_attente:"En attente",valide:"Validé",rejete:"Rejeté"};
 function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L.textContent="";
@@ -60,14 +63,15 @@ function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L
   const p=el("div","m");const tel=(r.telephone||"").replace(/[^\d]/g,"");const a=el("a",null,r.telephone||"");a.href="https://wa.me/"+tel;a.target="_blank";a.rel="noopener";
   p.append("Tél : ",a," • ",r.email||"—"," • ",r.ville||"—");c.append(p);
   if(r.paiement||r.transactionId){const q2=el("div","m");q2.append((r.paiement||"")+" "+(r.numeroPaiement||"")+" • ID : ");q2.append(el("span","tx",r.transactionId||"—"));q2.append(" • "+(r.montant||""));c.append(q2)}
-  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso};await updateDoc(doc(db,"adhesions",r.id),u);
+  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{let motif="";if(s==="rejete"){motif=askMotif();if(!motif)return}bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso,motif:s==="rejete"?motif:""};await updateDoc(doc(db,"adhesions",r.id),u);
 if(s==="valide"&&r.type==="Adhésion Premium"){await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",valideLe:iso});await grant(r)}
 else if(r.type==="Adhésion Premium"){await deleteDoc(doc(db,"membres",r.ref));const k=eid(r);if(k)await deleteDoc(doc(db,"membres_email",k))}
-if(r.type==="Ambassadeur"&&s!=="en_attente"&&eid(r)){const g=await getDoc(doc(db,"membres_email",eid(r)));if(g.exists())await notif(g.data().ref,"Candidature ambassadeur",s==="valide"?"Votre candidature d'ambassadeur a été validée. Merci de représenter DIAS FONDATION !":"Votre candidature d'ambassadeur n'a pas été retenue.")}}catch(e){alert("Action refusée.")}};A.append(bt)});
+if(r.type==="Ambassadeur"&&s!=="en_attente"&&eid(r)){const g=await getDoc(doc(db,"membres_email",eid(r)));if(g.exists())await notif(g.data().ref,"Candidature ambassadeur",s==="valide"?"Votre candidature d'ambassadeur a été validée. Merci de représenter DIAS FONDATION !":"Votre candidature d'ambassadeur n'a pas été retenue. Motif : "+motif)}}catch(e){alert("Action refusée.")}};A.append(bt)});
   if(r.statut==="valide"&&r.type==="Adhésion Premium"&&tel){const base=location.origin+location.pathname.replace(/[^\/]*$/,"")+"membre.html";const w=el("a","wa","Envoyer la carte sur WhatsApp");w.href="https://wa.me/"+tel+"?text="+encodeURIComponent("Bonjour "+(r.nom||"")+", votre adhésion DIAS FONDATION est validée ✅. Pour voir votre carte : ouvrez "+base+" , créez votre compte avec l'e-mail de votre fiche, confirmez-le, puis connectez-vous. Votre numéro de membre : "+r.ref);w.target="_blank";w.rel="noopener";A.append(w)}
 c.append(A);L.append(c)});
  if(!v.length)L.append(el("div","m","Aucune demande."))}
 async function notif(ref,titre,texte){if(!ref)return;try{await addDoc(collection(db,"notifications"),{pour:ref,titre,texte,lu:false,createdAt:new Date()})}catch(e){}}
+function askMotif(){const t=prompt("Motif du rejet (le membre le verra) :");if(t===null)return "";const m=t.trim();if(!m){alert("Le motif est obligatoire pour rejeter.");return ""}return m.slice(0,300)}
 const eid=r=>String(r.email||"").trim().toLowerCase();
 async function grant(r){const k=eid(r);if(!k)return;await setDoc(doc(db,"membres_email",k),{ref:r.ref||"",nom:r.nom||""})}
 [1,2,3,4].forEach(i=>$("tb"+i).onclick=()=>tab(i));
@@ -97,14 +101,14 @@ function ndraw(){const L=$("nlist");L.textContent="";const w=el("div");w.style.c
 function qdraw(){const L=$("qlist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:12px auto;padding:0 16px 40px;display:grid;gap:12px";
  qrows.forEach(p=>{const c=el("div","c");const h=el("h3",null,p.organisation||"");h.append(el("span","b "+(p.statut||"en_attente"),lab[p.statut]||p.statut));c.append(h);
   c.append(el("div","m",(p.type||"")+(p.rccm?" • RCCM : "+p.rccm:"")+(p.ca?" • CA : "+p.ca+" $":"")+" • "+fd(p.createdAt)));const t=(p.telephone||"").replace(/[^\d]/g,"");const x=el("div","m");const a2=el("a",null,p.telephone||"");a2.href="https://wa.me/"+t;a2.target="_blank";a2.rel="noopener";x.append((p.contact||"")+" • ",a2," • "+(p.email||"—"));c.append(x);if(p.message)c.append(el("div",null,p.message));
-  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([tx,k,s])=>{if(p.statut===s)return;const bt=el("button",k,tx);bt.onclick=async()=>{try{await updateDoc(doc(db,"partenaires",p.id),{statut:s});if(s==="valide")await notif(p.membreRef||p.id,"Partenariat validé","Votre demande de partenariat a été validée. Votre espace partenaire est activé : vous pouvez proposer des offres aux membres.");else if(s==="rejete")await notif(p.membreRef||p.id,"Partenariat rejeté","Votre demande de partenariat a été rejetée. Vous pouvez déposer une nouvelle demande depuis l'Espace partenaires.")}catch(e){alert("Action refusée.")}};A.append(bt)});c.append(A);w.append(c)});
+  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([tx,k,s])=>{if(p.statut===s)return;const bt=el("button",k,tx);bt.onclick=async()=>{let motif="";if(s==="rejete"){motif=askMotif();if(!motif)return}try{await updateDoc(doc(db,"partenaires",p.id),{statut:s,motif:s==="rejete"?motif:"",valideLe:s==="valide"?new Date().toISOString():""});if(s==="valide")await notif(p.membreRef||p.id,"Partenariat validé","Votre demande de partenariat a été validée. Votre espace partenaire est activé : vous pouvez proposer des offres aux membres.");else if(s==="rejete")await notif(p.membreRef||p.id,"Partenariat rejeté","Votre demande de partenariat a été rejetée. Motif : "+motif+". Vous pouvez déposer une nouvelle demande depuis l'Espace partenaires.")}catch(e){alert("Action refusée.")}};A.append(bt)});c.append(A);w.append(c)});
  if(!qrows.length)w.append(el("div","m","Aucune demande de partenariat."));L.append(w)}
 let prop=[];
 function rdraw(){const L=$("rlist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:12px auto;padding:0 16px 40px;display:grid;gap:12px";w.append(el("h3",null,"Propositions des partenaires"));
  prop.forEach(p=>{const c=el("div","c");const h=el("h3",null,p.titre||"");h.append(el("span","b "+(p.statut==="publiee"?"valide":p.statut==="refusee"?"rejete":"en_attente"),p.statut==="publiee"?"Publiée":p.statut==="refusee"?"Refusée":"En attente"));c.append(h);
   c.append(el("div","m",(p.organisation||"")+" • "+(CATL[p.categorie==="offre"?"offre":p.categorie]||p.categorie)+" • "+fd(p.createdAt)));if(p.description)c.append(el("div",null,p.description));if(p.lien)c.append(el("div","m",p.lien));if(p.contact)c.append(el("div","m","Contact : "+p.contact));
   if(p.statut==="en_attente"){const A=el("div","act");const ok=el("button","ok","Publier aux membres");ok.onclick=async()=>{try{await addDoc(collection(db,"publications"),{categorie:p.categorie,titre:p.titre,description:p.description||"",dateEvenement:"",lieu:"",lien:p.lien||"",contact:p.contact||"",source:p.organisation||"",publie:true,createdAt:new Date()});await updateDoc(doc(db,"propositions",p.id),{statut:"publiee"});await notif(p.membreRef,"Proposition publiée","Votre proposition « "+p.titre+" » est publiée pour les membres.")}catch(e){alert("Action refusée.")}};
-   const no=el("button","no","Refuser");no.onclick=async()=>{try{await updateDoc(doc(db,"propositions",p.id),{statut:"refusee"});await notif(p.membreRef,"Proposition refusée","Votre proposition « "+p.titre+" » n\'a pas été retenue.")}catch(e){alert("Action refusée.")}};A.append(ok,no);c.append(A)}
+   const no=el("button","no","Refuser");no.onclick=async()=>{const motif=askMotif();if(!motif)return;try{await updateDoc(doc(db,"propositions",p.id),{statut:"refusee",motif});await notif(p.membreRef,"Proposition refusée","Votre proposition « "+p.titre+" » n'a pas été retenue. Motif : "+motif)}catch(e){alert("Action refusée.")}};A.append(ok,no);c.append(A)}
   w.append(c)});if(!prop.length)w.append(el("div","m","Aucune proposition."));L.append(w)}
 onAuthStateChanged(auth,u3=>{for(const k in subs){subs[k]();delete subs[k]}
  if(u3){subs.n=onSnapshot(query(collection(db,"reseau"),orderBy("createdAt","desc")),s=>{nrows=s.docs.map(d=>({id:d.id,...d.data()}));ndraw()},()=>{});
