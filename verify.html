@@ -11,8 +11,7 @@ function bad(t){r.innerHTML='<div class="big no">✗</div><div class="no"></div>
 if(!ref||!F.projectId){bad("Carte non reconnue.");return}
 fetch("https://firestore.googleapis.com/v1/projects/"+F.projectId+"/databases/(default)/documents/membres/"+encodeURIComponent(ref)+"?key="+F.apiKey)
 .then(function(x){if(!x.ok)throw 0;return x.json()}).then(function(d){var f=d.fields||{},g=function(k){return f[k]&&f[k].stringValue||""};
- var exp=g("expireLe")?new Date(g("expireLe")):null;
- if(g("statut")==="valide"&&(!exp||exp>=new Date())){r.innerHTML='<div class="big ok">✓</div><div class="ok"><b></b><br>Membre Premium valide<br><span id="n"></span><br><span id="e"></span></div>';
-  r.querySelector("b").textContent=g("nom");document.getElementById("n").textContent="N° "+g("ref");document.getElementById("e").textContent=exp?"Valable jusqu'au "+exp.toLocaleDateString("fr-FR"):""}
- else bad("Adhésion expirée ou non valide.")}).catch(function(){bad("Aucun membre trouvé pour ce numéro.")})})();
+ if(g("statut")==="valide"){r.innerHTML='<div class="big ok">✓</div><div class="ok"><b></b><br>Membre Premium valide<br><span id="n"></span><br><span id="e"></span></div>';
+  r.querySelector("b").textContent=g("nom");document.getElementById("n").textContent="N° "+g("ref");var y=g("valideLe")?new Date(g("valideLe")).getFullYear():"";document.getElementById("e").textContent=y?"Membre depuis "+y:""}
+ else bad("Adhésion non valide.")}).catch(function(){bad("Aucun membre trouvé pour ce numéro.")})})();
 </script></body></html>

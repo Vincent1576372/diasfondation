@@ -59,18 +59,17 @@ function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L
   const p=el("div","m");const tel=(r.telephone||"").replace(/[^\d]/g,"");const a=el("a",null,r.telephone||"");a.href="https://wa.me/"+tel;a.target="_blank";a.rel="noopener";
   p.append("Tél : ",a," • ",r.email||"—"," • ",r.ville||"—");c.append(p);
   if(r.paiement||r.transactionId){const q2=el("div","m");q2.append((r.paiement||"")+" "+(r.numeroPaiement||"")+" • ID : ");q2.append(el("span","tx",r.transactionId||"—"));q2.append(" • "+(r.montant||""));c.append(q2)}
-  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso};if(s==="valide"){const x=new Date();x.setFullYear(x.getFullYear()+1);u.expireLe=x.toISOString()}
-await updateDoc(doc(db,"adhesions",r.id),u);
-if(s==="valide"&&r.type==="Adhésion Premium"){await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",expireLe:u.expireLe,valideLe:iso});await grant(r,u.expireLe)}
+  const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso};await updateDoc(doc(db,"adhesions",r.id),u);
+if(s==="valide"&&r.type==="Adhésion Premium"){await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",valideLe:iso});await grant(r)}
 else if(r.type==="Adhésion Premium"){await deleteDoc(doc(db,"membres",r.ref));const k=eid(r);if(k)await deleteDoc(doc(db,"membres_email",k))}}catch(e){alert("Action refusée.")}};A.append(bt)});
   if(r.statut==="valide"&&r.type==="Adhésion Premium"&&tel){const base=location.origin+location.pathname.replace(/[^\/]*$/,"")+"membre.html";const w=el("a","wa","Envoyer la carte sur WhatsApp");w.href="https://wa.me/"+tel+"?text="+encodeURIComponent("Bonjour "+(r.nom||"")+", votre adhésion DIAS FONDATION est validée ✅. Pour voir votre carte : ouvrez "+base+" , créez votre compte avec l'e-mail de votre fiche, confirmez-le, puis connectez-vous. Votre numéro de membre : "+r.ref);w.target="_blank";w.rel="noopener";A.append(w)}
 c.append(A);L.append(c)});
  if(!v.length)L.append(el("div","m","Aucune demande."))}
 const eid=r=>String(r.email||"").trim().toLowerCase();
-async function grant(r,exp){const k=eid(r);if(!k||!exp)return;await setDoc(doc(db,"membres_email",k),{ref:r.ref||"",nom:r.nom||"",expireLe:new Date(exp)})}
+async function grant(r){const k=eid(r);if(!k)return;await setDoc(doc(db,"membres_email",k),{ref:r.ref||"",nom:r.nom||""})}
 $("tb1").onclick=()=>tab(1);$("tb2").onclick=()=>tab(2);
 function tab(n){$("sec1").hidden=n!==1;$("sec2").hidden=n!==2;$("tb1").className=n===1?"on":"";$("tb2").className=n===2?"on":""}
-$("sy").onclick=async()=>{let n=0;for(const r of rows){if(r.statut==="valide"&&r.type==="Adhésion Premium"&&eid(r)&&r.expireLe){try{await grant(r,r.expireLe);n++}catch(e){}}}alert(n+" accès synchronisé(s).")};
+$("sy").onclick=async()=>{let n=0;for(const r of rows){if(r.statut==="valide"&&r.type==="Adhésion Premium"&&eid(r)){try{await grant(r);n++}catch(e){}}}alert(n+" accès synchronisé(s).")};
 let pu=null;const CATL={evenement:"📅 Événement",opportunite:"💼 Opportunité",emploi:"👔 Offre d'emploi",offre:"🎁 Offre spéciale",international:"🌍 Connexion internationale",pub:"📢 Espace publicitaire"};let prows=[];
 onAuthStateChanged(auth,u2=>{if(pu){pu();pu=null}if(u2)pu=onSnapshot(query(collection(db,"publications"),orderBy("createdAt","desc")),s=>{prows=s.docs.map(d=>({id:d.id,...d.data()}));pdraw()},e=>{$("plist").textContent="Accès refusé."})});
 function pdraw(){const L=$("plist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:auto;padding:0 16px 40px;display:grid;gap:12px";

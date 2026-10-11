@@ -113,12 +113,12 @@ function setView(){const s=$("v-set");s.textContent="";s.append(E("h2",null,"⚙
  const o=E("button","d","Se déconnecter");o.style.cssText="width:100%;margin-top:14px";o.onclick=()=>$("lo3").click();s.append(o)}
 const nz=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 const FAQ=[
- {k:["payer","paiement","frais","120","cotisation","prix"],a:"L'adhésion Premium coûte 120 $ par an. Le paiement se fait en mobile money (M-Pesa, Airtel Money, Orange Money) sur les numéros de la fondation indiqués lors de l'adhésion. L'équipe vérifie ensuite votre paiement et valide votre compte."},
+ {k:["temps","dure","expir","renouvel","validit","duree","annee"],a:"Le paiement de 120 $ est unique : il n'y a pas de renouvellement à faire."},
+ {k:["payer","paiement","frais","120","cotisation","prix","coute","cout","combien","tarif"],a:"L'adhésion Premium coûte 120 $. Le paiement se fait en mobile money (M-Pesa, Airtel Money, Orange Money) sur les numéros de la fondation indiqués lors de l'adhésion. L'équipe vérifie ensuite votre paiement et valide votre compte."},
  {k:["carte","qr","pdf","photo"],a:"Votre carte est dans le menu ☰ → Ma carte. Vous pouvez y changer le nom, la province et la photo, la télécharger en PDF et activer le QR."},
  {k:["ambassadeur"],a:"Menu ☰ → Devenir ambassadeur : remplissez le formulaire, l'équipe examine votre candidature."},
  {k:["evenement","agenda","date","reunion"],a:"Les événements publiés par l'équipe sont dans le menu ☰ → Événements."},
  {k:["emploi","job","opportunit","offre","travail"],a:"Les opportunités, offres d'emploi et offres spéciales sont dans le menu ☰."},
- {k:["expir","renouvel","validit","duree","annee"],a:"L'adhésion est valable un an à partir de sa validation. Avant la date de fin, renouvelez-la (120 $ par an) depuis le site."},
  {k:["mot de passe","mdp","connecter","connexion"],a:"Menu ☰ → Paramètres → Changer mon mot de passe : un e-mail vous sera envoyé."},
  {k:["contact","equipe","aide","whatsapp","joindre"],a:"Pour joindre l'équipe DIAS FONDATION"+(WA?", écrivez-nous sur WhatsApp.":", utilisez le contact indiqué sur le site."),wa:1}];
 const SUG=["Comment payer ?","Ma carte","Devenir ambassadeur","Durée de l'adhésion","Contacter l'équipe"];
@@ -142,7 +142,7 @@ function lists(v){const s=$("v-"+v);s.textContent="";const n=NAV.find(x=>x[0]===
  if(v==="events"){a=a.slice().sort((x,y)=>(isUp(y)-isUp(x))||((x.dateEvenement||"")<(y.dateEvenement||"")?(isUp(x)?-1:1):(isUp(x)?1:-1)))}
  if(!a.length)s.append(E("div","pan mut",EMPTY[v]));else a.forEach(p=>s.append(pcard(p)))}
 function home(){const s=$("v-home");s.textContent="";const p=prof();s.append(E("h2",null,"Bonjour "+(p.nom||M.nom).split(" ")[0]+" 👋"));
- const ad=E("div","pan st");ad.append(E("b",null,"Mon adhésion Premium"),E("div","small mut",M.exp?"Valable jusqu'au "+M.exp.toLocaleDateString("fr-FR")+" • N° "+M.ref:"N° "+M.ref));s.append(ad);
+ const ad=E("div","pan st");ad.append(E("b",null,"Mon adhésion Premium"),E("div","small mut","Membre depuis "+M.an+" • N° "+M.ref));s.append(ad);
  if(pubErr){s.append(E("div","pan mut small","Les publications de l'équipe seront visibles dès que votre accès sera activé."));return}
  const cnt=k=>pubs.filter(x=>x.categorie===CAT[k]&&(k!=="events"||isUp(x))).length;const tl=E("div","tiles");
  [["events","📅","Événements à venir"],["opps","💼","Opportunités"],["jobs","👔","Offres d'emploi"],["offers","🎁","Offres spéciales"]].forEach(([k,ic,lb])=>{const b=E("button","tile");b.append(E("b",null,String(cnt(k))),document.createTextNode(ic+" "+lb));b.onclick=()=>go(k);tl.append(b)});s.append(tl);
@@ -154,7 +154,6 @@ function draw(){const c=$("carte"),p=prof(),nm=p.nom||M.nom,pv=p.prov||M.prov;c.
  const h=E("div","h"),im=E("img");im.src=LOGO;im.alt="";const l=E("div","l");l.append(E("small",null,"DIAS FONDATION"),E("b",null,"MEMBRE PREMIUM"));h.append(im,l);
  const b=E("div","b"),ph=E("div","ph");if(p.photo)ph.style.backgroundImage="url("+p.photo+")";else ph.textContent="👤";
  const t=E("div");t.append(E("div","n",nm),E("div","m",pv+" • "+M.ref));const bd=E("div","bd");bd.append(E("span",null,"VÉRIFIÉ"),E("span",null,String(M.an)));t.append(bd);b.append(ph,t);c.append(h,b);
- if(M.exp)c.append(E("div","m","Valable jusqu'au "+M.exp.toLocaleDateString("fr-FR")));
  M.url=location.origin+location.pathname.replace(/[^\/]*$/,"")+"verify.html?ref="+encodeURIComponent(M.ref);
  if(qrOn){const q=E("div","q");c.append(q);if(window.QRCode)new QRCode(q,{text:M.url,width:104,height:104});else q.textContent=M.url}
  c.append(E("div","f","Servir l'humain, bâtir l'avenir"))}
@@ -185,10 +184,9 @@ onAuthStateChanged(auth,async u=>{if(!u){showS("auth");$("hb").hidden=true;$("ai
   const v=r.find(d=>d.statut==="valide"),x=v||r[0];
   if(!x){gate("Aucune demande d'adhésion trouvée pour cet e-mail. Utilisez l'e-mail indiqué sur votre fiche d'adhésion.");return}
   if(!v){gate(x.statut==="rejete"?"Votre demande n'a pas été validée. Contactez l'équipe DIAS FONDATION.":"Votre demande ("+(x.ref||"")+") est en cours de vérification. Revenez après la validation par l'équipe.");return}
-  const exp=v.expireLe?new Date(v.expireLe):null;
-  if(exp&&exp<new Date()){gate("Votre adhésion a expiré le "+exp.toLocaleDateString("fr-FR")+". Renouvelez-la (120 $ par an) depuis le site.");return}
+  
   const pv=PROV.find(p=>(v.ville||"").toLowerCase().includes(p.toLowerCase()))||"Kinshasa";
-  M={ref:v.ref,nom:v.nom||"",prov:pv,exp,an:v.traiteLe?new Date(v.traiteLe).getFullYear():(exp?exp.getFullYear()-1:"")};
+  M={ref:v.ref,nom:v.nom||"",prov:pv,an:v.traiteLe?new Date(v.traiteLe).getFullYear():new Date().getFullYear()};
   const p=prof();$("pn").value=p.nom||M.nom;$("pp").value=p.prov||pv;
   try{const q=await getDocs(query(collection(db,"publications"),where("publie","==",true)));pubs=q.docs.map(d=>d.data()).sort((a,b)=>ms(b.createdAt)-ms(a.createdAt));pubErr=false}catch(e){pubs=[];pubErr=true}
   showS("app");$("hb").hidden=false;$("ai").hidden=false;go("home")}
