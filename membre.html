@@ -34,6 +34,11 @@ button{border:0;border-radius:999px;padding:12px 18px;font:700 15px system-ui;cu
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;color:var(--ink)}.tile b{display:block;font-size:26px;color:var(--blue)}
 :root[data-theme="dark"] .tile b{color:var(--gold)}
 @media print{body *{visibility:hidden}#carte,#carte *{visibility:visible}#carte{position:absolute;left:0;top:0;width:340px;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+#ai{position:fixed;right:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:25;background:var(--gold);color:#111;border-radius:999px;padding:12px 16px;font-size:20px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}#ai span{font-size:13px;font-weight:800}
+#aip{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:460px;margin:auto;height:min(70vh,520px);background:var(--card);border:1px solid var(--line);border-radius:20px;z-index:40;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.45);overflow:hidden}
+#aip[hidden]{display:none}.ah{padding:12px 14px;background:var(--navy);color:#fff;position:relative}.ah small{display:block;color:#c9d4ee;font-size:12px}.ah button{position:absolute;right:8px;top:8px;background:none;color:#fff;font-size:24px;padding:4px 10px}
+#am2{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}.bb{max-width:86%;padding:10px 12px;border-radius:14px;font-size:14px;white-space:pre-wrap}.bb.a{background:var(--bg);align-self:flex-start}.bb.u{background:var(--blue);color:#fff;align-self:flex-end}.bb a{color:var(--blue);font-weight:700}
+#aq{display:flex;gap:6px;overflow-x:auto;padding:6px 10px}#aq button{flex:none;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-size:13px;padding:8px 12px}.af{display:flex;gap:6px;padding:8px 10px 10px}.af input{margin:0}.af button{background:var(--navy);color:#fff;padding:0 16px}
 [hidden]{display:none!important}
 </style></head><body>
 <div class="top"><button class="hb" id="hb" aria-label="Menu" hidden>☰</button><b id="ttl">Espace membre</b><a href="index.html">Site</a></div>
@@ -52,14 +57,16 @@ button{border:0;border-radius:999px;padding:12px 18px;font:700 15px system-ui;cu
 <div class="row"><button class="g" id="tq">QR : désactivé</button><button class="pri" style="margin:0;flex:1.2" id="pdf">Télécharger PDF</button><button class="d" id="sh">Partager</button></div>
 <div class="pan"><h3>Personnaliser</h3><label>Nom sur la carte</label><input id="pn" maxlength="40"><label>Province</label><select id="pp"></select><label>Photo</label><input id="pf" type="file" accept="image/*">
 <button class="nav" id="sv">Enregistrer</button><div id="sm" class="small" style="color:var(--blue);margin-top:10px"></div><div class="small mut" style="margin-top:10px">La photo et les choix restent sur votre téléphone.</div></div></section>
-<section class="v" id="v-events" hidden></section><section class="v" id="v-opps" hidden></section><section class="v" id="v-jobs" hidden></section><section class="v" id="v-offers" hidden></section>
+<section class="v" id="v-events" hidden></section><section class="v" id="v-opps" hidden></section><section class="v" id="v-jobs" hidden></section><section class="v" id="v-offers" hidden></section><section class="v" id="v-intl" hidden></section><section class="v" id="v-ads" hidden></section><section class="v" id="v-amb" hidden></section><section class="v" id="v-set" hidden></section>
 </main></div>
+<button id="ai" hidden aria-label="Assistant DIAS">🤖<span>Assistant</span></button>
+<div id="aip" hidden><div class="ah"><b>Assistant DIAS</b><small>Réponses préparées par l'équipe</small><button id="ax" aria-label="Fermer">×</button></div><div id="am2"></div><div id="aq"></div><div class="af"><input id="ain" placeholder="Posez votre question…" maxlength="120"><button id="asd">➤</button></div></div>
 <script src="dias-config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendEmailVerification,sendPasswordResetEmail,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,where,limit,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,where,limit,getDocs,addDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const $=i=>document.getElementById(i),FB=(window.DIAS||{}).firebase||{},LOGO="data:image/jpeg;base64,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";
 const E=(t,k,x)=>{const e=document.createElement(t);if(k)e.className=k;if(x!=null)e.textContent=x;return e};
 const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
@@ -67,10 +74,10 @@ const showS=id=>["auth","verif","gate","app"].forEach(x=>$(x).hidden=x!==id);
 const say=(t,bad)=>{$("msg").textContent=t;$("msg").className=bad?"err":""};
 const PROV=["Kinshasa","Kongo Central","Kwango","Kwilu","Mai-Ndombe","Kasaï","Kasaï-Central","Kasaï-Oriental","Lomami","Sankuru","Maniema","Sud-Kivu","Nord-Kivu","Ituri","Haut-Uélé","Bas-Uélé","Tshopo","Nord-Ubangi","Sud-Ubangi","Mongala","Équateur","Tshuapa","Tanganyika","Haut-Lomami","Lualaba","Haut-Katanga","Japon","Autre"];
 PROV.forEach(p=>{const o=E("option",null,p);$("pp").appendChild(o)});
-const NAV=[["home","🏠","Tableau de bord"],["card","🪪","Ma carte"],["events","📅","Événements"],["opps","💼","Opportunités"],["jobs","👔","Offres d'emploi"],["offers","🎁","Offres spéciales"]];
-const CAT={events:"evenement",opps:"opportunite",jobs:"emploi",offers:"offre"};
-const EMPTY={events:"Aucun événement pour le moment.",opps:"Aucune opportunité pour le moment.",jobs:"Aucune offre d'emploi pour le moment.",offers:"Aucune offre spéciale pour le moment."};
-let M=null,pubs=[],pubErr=false,qrOn=false,view="home";
+const NAV=[["home","🏠","Tableau de bord"],["card","🪪","Ma carte"],["events","📅","Événements"],["opps","💼","Opportunités"],["jobs","👔","Offres d'emploi"],["offers","🎁","Offres spéciales"],["intl","🌍","Connexion internationale"],["ads","📢","Espace publicitaire"],["amb","🎖️","Devenir ambassadeur"],["set","⚙️","Paramètres"]];
+const CAT={events:"evenement",opps:"opportunite",jobs:"emploi",offers:"offre",intl:"international",ads:"pub"};
+const EMPTY={events:"Aucun événement pour le moment.",opps:"Aucune opportunité pour le moment.",jobs:"Aucune offre d'emploi pour le moment.",offers:"Aucune offre spéciale pour le moment.",intl:"Aucune publication pour le moment.",ads:"Aucune annonce pour le moment."};
+let M=null,pubs=[],pubErr=false,qrOn=false,view="home",DB=null,AUTH=null,U="",AMBS=[];const WA=((window.DIAS||{}).whatsapp||"").replace(/\D/g,"");
 const th=ls("dias_theme");if(th)document.documentElement.setAttribute("data-theme",th);
 const prof=()=>{try{return JSON.parse(ls("dias_p_"+M.ref)||"{}")}catch(e){return{}}};
 const ms=t=>t&&t.toMillis?t.toMillis():0;
@@ -87,7 +94,41 @@ function drawer(){const d=$("dr"),p=prof();d.textContent="";
 function openD(o){$("dr").classList.toggle("on",o);$("ov").hidden=!o}
 $("hb").onclick=()=>{drawer();openD(true)};$("ov").onclick=()=>openD(false);
 function go(v){view=v;openD(false);document.querySelectorAll(".v").forEach(s=>s.hidden=s.id!=="v-"+v);const n=NAV.find(x=>x[0]===v);$("ttl").textContent=n?n[2]:"Espace membre";scrollTo(0,0);
- if(v==="home")home();else if(v==="card")draw();else lists(v)}
+ if(v==="home")home();else if(v==="card")draw();else if(v==="amb")ambView();else if(v==="set")setView();else lists(v)}
+function rid(){const a="ABCDEFGHJKMNPQRSTUVWXYZ23456789",u=new Uint32Array(8);crypto.getRandomValues(u);let r="";for(let i=0;i<8;i++)r+=a[u[i]%a.length];return "DIAS-"+r}
+function ambView(){const s=$("v-amb");s.textContent="";s.append(E("h2",null,"🎖️ Devenir ambassadeur"));
+ s.append(E("div","pan","Les ambassadeurs représentent DIAS FONDATION dans leur province : ils relaient les actions, mobilisent les jeunes et font connaître la fondation."));
+ const last=AMBS[0];
+ if(last){s.append(E("div","pan st",last.statut==="valide"?"Votre candidature a été validée. Merci de représenter DIAS FONDATION !":last.statut==="rejete"?"Votre candidature n'a pas été retenue. Contactez l'équipe pour en savoir plus.":"Votre candidature ("+(last.ref||"")+") est en cours d'examen par l'équipe."));if(last.statut!=="rejete")return}
+ const f=E("div","pan");f.innerHTML='<h3>Candidater</h3><label>Téléphone WhatsApp (avec indicatif)</label><input id="ap" maxlength="30" placeholder="+243 ..."><label>Province</label><select id="av"></select><button class="nav" id="ab">Envoyer ma candidature</button><div id="amg" class="small" style="margin-top:10px"></div>';s.append(f);
+ PROV.forEach(p=>$("av").append(E("option",null,p)));$("av").value=prof().prov||M.prov;
+ $("ab").onclick=async()=>{const ph=$("ap").value.trim(),g=$("amg");if(ph.replace(/\D/g,"").length<8){g.textContent="Entrez un numéro valide.";g.style.color="#d1121f";return}
+  try{const d={type:"Ambassadeur",ref:rid(),statut:"en_attente",nom:M.nom,telephone:ph,email:U,ville:$("av").value,createdAt:new Date()};await addDoc(collection(DB,"adhesions"),d);AMBS.unshift(d);ambView()}catch(e){g.textContent="Envoi impossible. Réessayez plus tard.";g.style.color="#d1121f"}}}
+function setView(){const s=$("v-set");s.textContent="";s.append(E("h2",null,"⚙️ Paramètres"));
+ const a=E("div","pan");a.append(E("h3",null,"Mon compte"),E("div","small mut","E-mail : "+U),E("div","small mut","N° de membre : "+M.ref));
+ const g=E("div","small","");g.style.cssText="margin-top:10px;color:var(--blue)";
+ const pw=E("button","nav","Changer mon mot de passe");pw.onclick=async()=>{try{await sendPasswordResetEmail(AUTH,U);g.textContent="Un e-mail vient de vous être envoyé pour choisir un nouveau mot de passe."}catch(e){g.textContent="Envoi impossible pour le moment."}};a.append(pw,g);s.append(a);
+ const b=E("div","pan");b.append(E("h3",null,"Apparence"));const dk=E("button","g","Mode sombre / clair");dk.style.cssText="width:100%;margin-top:6px";dk.onclick=()=>{const c=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",c);ls("dias_theme",c)};b.append(dk,E("div","small mut","Photo, nom et province de la carte : menu ☰ → Ma carte."));s.append(b);
+ const l=E("div","pan");l.append(E("h3",null,"Langue"),E("div","small mut","Français. L'anglais, le japonais, le lingala et le swahili arrivent bientôt."));s.append(l);
+ const o=E("button","d","Se déconnecter");o.style.cssText="width:100%;margin-top:14px";o.onclick=()=>$("lo3").click();s.append(o)}
+const nz=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const FAQ=[
+ {k:["payer","paiement","frais","120","cotisation","prix"],a:"L'adhésion Premium coûte 120 $ par an. Le paiement se fait en mobile money (M-Pesa, Airtel Money, Orange Money) sur les numéros de la fondation indiqués lors de l'adhésion. L'équipe vérifie ensuite votre paiement et valide votre compte."},
+ {k:["carte","qr","pdf","photo"],a:"Votre carte est dans le menu ☰ → Ma carte. Vous pouvez y changer le nom, la province et la photo, la télécharger en PDF et activer le QR."},
+ {k:["ambassadeur"],a:"Menu ☰ → Devenir ambassadeur : remplissez le formulaire, l'équipe examine votre candidature."},
+ {k:["evenement","agenda","date","reunion"],a:"Les événements publiés par l'équipe sont dans le menu ☰ → Événements."},
+ {k:["emploi","job","opportunit","offre","travail"],a:"Les opportunités, offres d'emploi et offres spéciales sont dans le menu ☰."},
+ {k:["expir","renouvel","validit","duree","annee"],a:"L'adhésion est valable un an à partir de sa validation. Avant la date de fin, renouvelez-la (120 $ par an) depuis le site."},
+ {k:["mot de passe","mdp","connecter","connexion"],a:"Menu ☰ → Paramètres → Changer mon mot de passe : un e-mail vous sera envoyé."},
+ {k:["contact","equipe","aide","whatsapp","joindre"],a:"Pour joindre l'équipe DIAS FONDATION"+(WA?", écrivez-nous sur WhatsApp.":", utilisez le contact indiqué sur le site."),wa:1}];
+const SUG=["Comment payer ?","Ma carte","Devenir ambassadeur","Durée de l'adhésion","Contacter l'équipe"];
+function bub(t,c,wa){const b=E("div","bb "+c,t);if(wa&&WA){b.append(document.createElement("br"));const a=E("a",null,"Ouvrir WhatsApp");a.href="https://wa.me/"+WA;a.target="_blank";a.rel="noopener noreferrer";b.append(a)}$("am2").append(b);$("am2").scrollTop=1e5}
+function ask(q){q=q.trim();if(!q)return;bub(q,"u");const n=nz(q),f=FAQ.find(x=>x.k.some(k=>n.includes(nz(k))));
+ bub(f?f.a:"Je n'ai pas la réponse à cette question. Contactez l'équipe DIAS FONDATION, elle vous répondra.",f&&!f.wa?"a":"a",f?f.wa:1)}
+SUG.forEach(s=>{const b=E("button",null,s);b.onclick=()=>ask(s);$("aq").append(b)});
+$("ai").onclick=()=>{$("aip").hidden=false;$("ai").hidden=true;if(!$("am2").children.length)bub("Bonjour 👋 Je suis l'assistant DIAS FONDATION. Je réponds aux questions sur l'adhésion, le paiement, la carte et l'espace membre.","a")};
+$("ax").onclick=()=>{$("aip").hidden=true;$("ai").hidden=!M};
+$("asd").onclick=()=>{ask($("ain").value);$("ain").value=""};$("ain").onkeydown=e=>{if(e.key==="Enter"){ask($("ain").value);$("ain").value=""}};
 function pcard(p){const c=E("div","pub");c.append(E("h3",null,p.titre||""));
  const meta=[p.dateEvenement?fdate(p.dateEvenement):"",p.lieu||""].filter(Boolean).join(" • ");if(meta)c.append(E("div","meta",meta));
  if(p.description)c.append(E("p",null,p.description));
@@ -95,6 +136,7 @@ function pcard(p){const c=E("div","pub");c.append(E("h3",null,p.titre||""));
  if(p.contact){const dg=p.contact.replace(/[^\d]/g,"");if(/^[+\d][\d\s+()-]{7,}$/.test(p.contact.trim())){const a=E("a","b2","WhatsApp");a.href="https://wa.me/"+dg;a.target="_blank";a.rel="noopener noreferrer";c.append(a)}else c.append(E("div","small mut","Contact : "+p.contact))}
  return c}
 function lists(v){const s=$("v-"+v);s.textContent="";const n=NAV.find(x=>x[0]===v);s.append(E("h2",null,n[1]+" "+n[2]));
+ if(v==="ads"){const nt=E("div","pan small mut","Pour afficher votre annonce ici, contactez l'équipe DIAS FONDATION. ");if(WA){const a=E("a",null,"WhatsApp");a.href="https://wa.me/"+WA;a.target="_blank";a.rel="noopener noreferrer";nt.append(a)}s.append(nt)}
  if(pubErr){s.append(E("div","pan st","Ce contenu est réservé aux membres dont l'adhésion est validée. Si elle vient d'être validée, patientez un peu ou contactez l'équipe."));return}
  let a=pubs.filter(p=>p.categorie===CAT[v]);
  if(v==="events"){a=a.slice().sort((x,y)=>(isUp(y)-isUp(x))||((x.dateEvenement||"")<(y.dateEvenement||"")?(isUp(x)?-1:1):(isUp(x)?1:-1)))}
@@ -123,7 +165,7 @@ $("pf").onchange=function(){const f=this.files[0];if(!f)return;const r=new FileR
 $("sv").onclick=()=>{const p=prof();p.nom=$("pn").value.trim().slice(0,40)||M.nom;p.prov=$("pp").value;ls("dias_p_"+M.ref,JSON.stringify(p));draw();$("sm").textContent="Enregistré sur ce téléphone."};
 if(!FB.apiKey||!FB.projectId){say("L'espace membre n'est pas encore activé.",1);$("go").disabled=true}
 else{
-const app=initializeApp(FB),auth=getAuth(app),db=getFirestore(app);auth.languageCode="fr";let up=false;
+const app=initializeApp(FB),auth=getAuth(app),db=getFirestore(app);auth.languageCode="fr";DB=db;AUTH=auth;let up=false;
 const mode=u=>{up=u;$("t-in").className=u?"":"on";$("t-up").className=u?"on":"";$("go").textContent=u?"Créer mon compte":"Se connecter";$("pw").autocomplete=u?"new-password":"current-password";say("")};
 $("t-in").onclick=()=>mode(false);$("t-up").onclick=()=>mode(true);
 const tr=c=>({"auth/email-already-in-use":"Cet e-mail a déjà un compte : connectez-vous.","auth/invalid-credential":"E-mail ou mot de passe incorrect.","auth/wrong-password":"E-mail ou mot de passe incorrect.","auth/user-not-found":"E-mail ou mot de passe incorrect.","auth/weak-password":"Mot de passe trop court (6 caractères minimum).","auth/invalid-email":"Adresse e-mail invalide.","auth/too-many-requests":"Trop d'essais. Réessayez dans quelques minutes."}[c]||"Une erreur est survenue. Réessayez.");
@@ -133,13 +175,13 @@ $("fg").onclick=async()=>{const e=$("em").value.trim().toLowerCase();if(!e){say(
 $("lo1").onclick=$("lo3").onclick=()=>signOut(auth);
 $("rs").onclick=async()=>{try{await sendEmailVerification(auth.currentUser);$("vm").textContent="E-mail renvoyé."}catch(x){$("vm").textContent="Patientez un peu avant de renvoyer."}};
 $("rf").onclick=()=>location.reload();
-const gate=t=>{$("gt").textContent=t;showS("gate");$("hb").hidden=true;$("ttl").textContent="Espace membre"};
-onAuthStateChanged(auth,async u=>{if(!u){showS("auth");$("hb").hidden=true;return}
+const gate=t=>{$("gt").textContent=t;showS("gate");$("hb").hidden=true;$("ai").hidden=true;$("aip").hidden=true;$("ttl").textContent="Espace membre"};
+onAuthStateChanged(auth,async u=>{if(!u){showS("auth");$("hb").hidden=true;$("ai").hidden=true;$("aip").hidden=true;return}
  try{await u.reload()}catch(x){}
  if(!u.emailVerified){$("ve").textContent=u.email;showS("verif");return}
  $("gt").textContent="Chargement…";showS("gate");
  try{const s=await getDocs(query(collection(db,"adhesions"),where("email","==",u.email),limit(10)));
-  const r=s.docs.map(d=>d.data()).filter(d=>d.type==="Adhésion Premium").sort((a,b)=>ms(b.createdAt)-ms(a.createdAt));
+  U=u.email;const all=s.docs.map(d=>d.data());AMBS=all.filter(d=>d.type==="Ambassadeur").sort((a,b)=>ms(b.createdAt)-ms(a.createdAt));const r=all.filter(d=>d.type==="Adhésion Premium").sort((a,b)=>ms(b.createdAt)-ms(a.createdAt));
   const v=r.find(d=>d.statut==="valide"),x=v||r[0];
   if(!x){gate("Aucune demande d'adhésion trouvée pour cet e-mail. Utilisez l'e-mail indiqué sur votre fiche d'adhésion.");return}
   if(!v){gate(x.statut==="rejete"?"Votre demande n'a pas été validée. Contactez l'équipe DIAS FONDATION.":"Votre demande ("+(x.ref||"")+") est en cours de vérification. Revenez après la validation par l'équipe.");return}
@@ -149,7 +191,7 @@ onAuthStateChanged(auth,async u=>{if(!u){showS("auth");$("hb").hidden=true;retur
   M={ref:v.ref,nom:v.nom||"",prov:pv,exp,an:v.traiteLe?new Date(v.traiteLe).getFullYear():(exp?exp.getFullYear()-1:"")};
   const p=prof();$("pn").value=p.nom||M.nom;$("pp").value=p.prov||pv;
   try{const q=await getDocs(query(collection(db,"publications"),where("publie","==",true)));pubs=q.docs.map(d=>d.data()).sort((a,b)=>ms(b.createdAt)-ms(a.createdAt));pubErr=false}catch(e){pubs=[];pubErr=true}
-  showS("app");$("hb").hidden=false;go("home")}
+  showS("app");$("hb").hidden=false;$("ai").hidden=false;go("home")}
  catch(e){gate("Impossible de charger votre adhésion. Réessayez plus tard.")}});
 }
 </script></body></html>
