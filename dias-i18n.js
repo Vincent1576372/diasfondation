@@ -35,6 +35,9 @@ var P=[
 [/^Payez 120 \$ sur l'un des numéros ci-dessous \(au nom de (.+?)\), puis notez l'identifiant de la transaction reçu par SMS\.([\s\S]*)$/,["Pay $120 to one of the numbers below (in the name of $1), then note the transaction ID received by SMS.$2","下記の番号のいずれかに120ドルをお支払いください（名義：$1）。SMSで届く取引IDを控えてください。$2","Futa 120 $ na imoko ya banimero oyo na nse (na kombo ya $1), sima komeka identifiant ya transaction ozwi na SMS.$2","Lipa $120 kwa mojawapo ya namba zilizo hapa chini (kwa jina la $1), kisha andika kitambulisho cha muamala ulichopokea kwa SMS.$2"]]
 ];
 
+D["Rejoignez DIAS FONDATION"]=["Join DIAS FONDATION","DIAS FONDATION に参加しよう","Kota na DIAS FONDATION","Jiunge na DIAS FONDATION"];
+D["Devenez membre et accédez à l'espace membre : carte officielle, réseau, événements et offres."]=["Become a member and access the member space: official card, network, events and offers.","メンバーになって、メンバー専用ページをご利用ください。公式カード、ネットワーク、イベント、オファーが使えます。","Kokoma membre mpe kokɔta na esika ya membre : karte ya officiel, réseau, makambo mpe offres.","Kuwa mwanachama na ufikie eneo la wanachama: kadi rasmi, mtandao, matukio na ofa."];
+D["Rejoindre la fondation — $120"]=["Join the foundation — $120","財団に参加 — $120","Kota na fondation — $120","Jiunge na taasisi — $120"];
 D["Menu"]=["Menu","メニュー","Menu","Menyu"];D["Fermer"]=["Close","閉じる","Kokanga","Funga"];D["Se déconnecter"]=D["Se déconnecter"];
 var lang="fr";try{lang=localStorage.getItem("dias_lang")||"fr"}catch(e){}if(L.indexOf(lang)<0)lang="fr";
 var scope=null,orig=new WeakMap();
