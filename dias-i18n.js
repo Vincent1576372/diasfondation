@@ -38,7 +38,7 @@ var P=[
 D["Rejoignez DIAS FONDATION"]=["Join DIAS FONDATION","DIAS FONDATION に参加しよう","Kota na DIAS FONDATION","Jiunge na DIAS FONDATION"];
 D["Devenez membre et accédez à l'espace membre : carte officielle, réseau, événements et offres."]=["Become a member and access the member space: official card, network, events and offers.","メンバーになって、メンバー専用ページをご利用ください。公式カード、ネットワーク、イベント、オファーが使えます。","Kokoma membre mpe kokɔta na esika ya membre : karte ya officiel, réseau, makambo mpe offres.","Kuwa mwanachama na ufikie eneo la wanachama: kadi rasmi, mtandao, matukio na ofa."];
 D["Rejoindre la fondation — $120"]=["Join the foundation — $120","財団に参加 — $120","Kota na fondation — $120","Jiunge na taasisi — $120"];
-D["Menu"]=["Menu","メニュー","Menu","Menyu"];D["Fermer"]=["Close","閉じる","Kokanga","Funga"];D["Se déconnecter"]=D["Se déconnecter"];
+D["Siège au Japon :"]=["Seat in Japan:","日本の本部：","Siège na Japon :","Makao makuu Japani:"];D["Menu"]=["Menu","メニュー","Menu","Menyu"];D["Fermer"]=["Close","閉じる","Kokanga","Funga"];D["Se déconnecter"]=D["Se déconnecter"];
 var lang="fr";try{lang=localStorage.getItem("dias_lang")||"fr"}catch(e){}if(L.indexOf(lang)<0)lang="fr";
 var scope=null,orig=new WeakMap();
 function ix(){return L.indexOf(lang)-1}
