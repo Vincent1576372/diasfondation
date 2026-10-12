@@ -94,6 +94,7 @@ Error generating stack: `+t.message+`
   <script>(function(){function m(a){var h=a.getAttribute("href");if(!h)return;try{var u=new URL(h,document.baseURI);if((u.protocol==="http:"||u.protocol==="https:")&&u.host!==location.host){a.target="_blank";a.rel="noopener noreferrer";}}catch(e){}}function s(){document.querySelectorAll("a[href]").forEach(m);}if(document.readyState!=="loading"){s();}else{document.addEventListener("DOMContentLoaded",s);}document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a){m(a);}},true);})();</script>
   <script type="application/json" data-clippy-inline-media-manifest="1">{"version":1,"slots":[]}</script>
 <script src="dias-config.js"></script>
+<script src="dias-i18n.js"></script>
 <script>
 (function(){
 var C=window.DIAS||{},FB=C.firebase||{},PAY=C.pay||{},WA=C.whatsapp||"";
@@ -145,6 +146,8 @@ var tx=(b.innerText||"").trim();if(!tx||tx==="×"||/^\uD83C[\uDDE6-\uDDFF]/.test
 var sh=b.closest("header .shrink-0");if(sh){var bs=[].filter.call(sh.children,function(x){return x.tagName==="BUTTON"});if(bs.length>1&&b===bs[0]){e.preventDefault();e.stopPropagation();location.href="membre.html";return}}
 e.preventDefault();e.stopPropagation();open(b.closest("#ambassadeur")?"Candidature Ambassadeur DIAS":"Adhésion Premium DIAS FONDATION")},true);
 })();
+
+if(window.DIAS_I18N)DIAS_I18N.init({scope:function(el){return !!(el.closest&&el.closest("#dias-modal,#dias-jp"))},syncReact:true});
 </script>
 <script>
 (function(){var t=document.getElementById("dias-jp-tpl");if(!t)return;

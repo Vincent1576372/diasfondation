@@ -38,7 +38,7 @@ button{border:0;border-radius:999px;padding:12px 18px;font:700 15px system-ui;cu
 #aip{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:460px;margin:auto;height:min(70vh,520px);background:var(--card);border:1px solid var(--line);border-radius:20px;z-index:40;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.45);overflow:hidden}
 #aip[hidden]{display:none}.ah{padding:12px 14px;background:var(--navy);color:#fff;position:relative}.ah small{display:block;color:#c9d4ee;font-size:12px}.ah button{position:absolute;right:8px;top:8px;background:none;color:#fff;font-size:24px;padding:4px 10px}
 #am2{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}.bb{max-width:86%;padding:10px 12px;border-radius:14px;font-size:14px;white-space:pre-wrap}.bb.a{background:var(--bg);align-self:flex-start}.bb.u{background:var(--blue);color:#fff;align-self:flex-end}.bb a{color:var(--blue);font-weight:700}
-textarea{width:100%;min-height:96px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;margin-top:6px;resize:vertical}.pub .row2{display:flex;gap:8px;margin-top:8px}.pub .row2 button{padding:7px 14px;font-size:13px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}.pub .au{font-weight:800}.rt{display:flex;align-items:center;gap:6px}.hb{position:relative}.bn{position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:99px;font:700 11px system-ui;padding:1px 6px}.pub.unread{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,175,55,.3)}.sb{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;margin-left:6px}.sb.en_attente{background:#fef3c7;color:#92400e}.sb.publiee,.sb.valide{background:#dcfce7;color:#166534}.sb.refusee,.sb.rejete{background:#fee2e2;color:#991b1b}.ph2{display:flex;gap:10px;align-items:center}.pav,.onav{width:44px;height:44px;border-radius:50%;background:#223a7a center/cover no-repeat;color:#fff;display:grid;place-items:center;font-weight:800;border:2px solid var(--gold);flex:none}.vb2{background:var(--gold);color:#111;border-radius:99px;padding:1px 8px;font-size:11px;font-weight:800;margin-left:6px}
+textarea{width:100%;min-height:96px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;margin-top:6px;resize:vertical}.pub .row2{display:flex;gap:8px;margin-top:8px}.pub .row2 button{padding:7px 14px;font-size:13px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}.pub .au{font-weight:800}.rt{display:flex;align-items:center;gap:6px}.dias-lsel{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:8px;padding:4px 4px;font-size:12px;width:auto;margin:0}.dias-lsel option{color:#111}.hb{position:relative}.bn{position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:99px;font:700 11px system-ui;padding:1px 6px}.pub.unread{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,175,55,.3)}.sb{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;margin-left:6px}.sb.en_attente{background:#fef3c7;color:#92400e}.sb.publiee,.sb.valide{background:#dcfce7;color:#166534}.sb.refusee,.sb.rejete{background:#fee2e2;color:#991b1b}.ph2{display:flex;gap:10px;align-items:center}.pav,.onav{width:44px;height:44px;border-radius:50%;background:#223a7a center/cover no-repeat;color:#fff;display:grid;place-items:center;font-weight:800;border:2px solid var(--gold);flex:none}.vb2{background:var(--gold);color:#111;border-radius:99px;padding:1px 8px;font-size:11px;font-weight:800;margin-left:6px}
 .pim{width:100%;border-radius:14px;margin-top:8px;display:block}.bar2{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.bar2 button{background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:8px 12px;font-size:14px}.bar2 .lk.on{background:#fde8ea;border-color:#f3b4ba}
 .onr{display:flex;gap:12px;overflow-x:auto;margin-top:8px}.onc{text-align:center;flex:none}.onav{position:relative;margin:auto;width:48px;height:48px}.onav:after{content:"";position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid var(--card)}
 .chips{display:flex;gap:8px;margin-top:14px}.chips button{background:var(--card);color:var(--ink);border:1px solid var(--line);padding:9px 16px}.chips button.on{background:var(--gold);color:#111;border-color:var(--gold)}
@@ -46,7 +46,7 @@ textarea{width:100%;min-height:96px;padding:13px;border:1px solid var(--line);bo
 #aq{display:flex;gap:6px;overflow-x:auto;padding:6px 10px}#aq button{flex:none;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-size:13px;padding:8px 12px}.af{display:flex;gap:6px;padding:8px 10px 10px}.af input{margin:0}.af button{background:var(--navy);color:#fff;padding:0 16px}
 [hidden]{display:none!important}
 </style></head><body>
-<div class="top"><button class="hb" id="hb" aria-label="Menu" hidden>☰</button><b id="ttl">Espace membre</b><span class="rt"><button class="hb" id="bell" hidden aria-label="Notifications">🔔<span id="bn" class="bn" hidden></span></button><a href="index.html">Site</a></span></div>
+<div class="top"><button class="hb" id="hb" aria-label="Menu" hidden>☰</button><b id="ttl">Espace membre</b><span class="rt"><span id="lgs"></span><button class="hb" id="bell" hidden aria-label="Notifications">🔔<span id="bn" class="bn" hidden></span></button><a href="index.html">Site</a></span></div>
 <div class="ov" id="ov" hidden></div><aside class="dr" id="dr"></aside>
 <div class="box">
 <section id="auth" class="pan"><h1>Espace membre</h1><div class="mut">Utilisez l'e-mail de votre fiche d'adhésion. Aucun QR à scanner.</div>
@@ -67,6 +67,7 @@ textarea{width:100%;min-height:96px;padding:13px;border:1px solid var(--line);bo
 <button id="ai" hidden aria-label="Assistant DIAS">🤖<span>Assistant</span></button>
 <div id="aip" hidden><div class="ah"><b>Assistant DIAS</b><small>Réponses préparées par l'équipe</small><button id="ax" aria-label="Fermer">×</button></div><div id="am2"></div><div id="aq"></div><div class="af"><input id="ain" placeholder="Posez votre question…" maxlength="120"><button id="asd">➤</button></div></div>
 <script src="dias-config.js"></script>
+<script src="dias-i18n.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -78,7 +79,7 @@ const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorag
 const showS=id=>["auth","verif","gate","app"].forEach(x=>$(x).hidden=x!==id);
 const say=(t,bad)=>{$("msg").textContent=t;$("msg").className=bad?"err":""};
 const PROV=["Kinshasa","Kongo Central","Kwango","Kwilu","Mai-Ndombe","Kasaï","Kasaï-Central","Kasaï-Oriental","Lomami","Sankuru","Maniema","Sud-Kivu","Nord-Kivu","Ituri","Haut-Uélé","Bas-Uélé","Tshopo","Nord-Ubangi","Sud-Ubangi","Mongala","Équateur","Tshuapa","Tanganyika","Haut-Lomami","Lualaba","Haut-Katanga","Japon","Autre"];
-PROV.forEach(p=>{const o=E("option",null,p);$("pp").appendChild(o)});
+PROV.forEach(p=>{const o=E("option",null,p);o.value=p;$("pp").appendChild(o)});
 const NAV=[["home","🏠","Tableau de bord"],["net","🌐","Réseau DIAS • PRIVÉ"],["card","🪪","Ma carte"],["events","📅","Événements"],["opps","💼","Opportunités"],["jobs","👔","Offres d'emploi"],["offers","🎁","Offres spéciales"],["intl","🌍","Connexion internationale"],["ads","📢","Espace publicitaire"],["amb","🎖️","Devenir ambassadeur"],["part","🤝","Espace partenaires"],["set","⚙️","Paramètres"]];
 const CAT={events:"evenement",opps:"opportunite",jobs:"emploi",offers:"offre",intl:"international",ads:"pub"};
 const EMPTY={events:"Aucun événement pour le moment.",opps:"Aucune opportunité pour le moment.",jobs:"Aucune offre d'emploi pour le moment.",offers:"Aucune offre spéciale pour le moment.",intl:"Aucune publication pour le moment.",ads:"Aucune annonce pour le moment."};
@@ -87,7 +88,7 @@ const th=ls("dias_theme");if(th)document.documentElement.setAttribute("data-them
 const prof=()=>{try{return JSON.parse(ls("dias_p_"+M.ref)||"{}")}catch(e){return{}}};
 const ms=t=>t&&t.toMillis?t.toMillis():0;
 const safe=u=>/^https?:\/\//i.test(u||"")?u:"";
-const fdate=s=>{const d=new Date(s+"T00:00:00");return isNaN(d)?"":d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})};
+const fdate=s=>{const d=new Date(s+"T00:00:00");return isNaN(d)?"":d.toLocaleDateString(DIAS_I18N.loc(),{weekday:"long",day:"numeric",month:"long",year:"numeric"})};
 const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
 const isUp=p=>{const d=new Date((p.dateEvenement||"")+"T00:00:00");return !isNaN(d)&&d>=today()};
 function drawer(){const d=$("dr"),p=prof();d.textContent="";
@@ -102,7 +103,7 @@ function go(v){view=v;openD(false);document.querySelectorAll(".v").forEach(s=>s.
  if(v==="home")home();else if(v==="card")draw();else if(v==="net")netView();else if(v==="notif")notifView();else if(v==="part")partView();else if(v==="amb")ambView();else if(v==="set")setView();else lists(v)}
 function rid(){const a="ABCDEFGHJKMNPQRSTUVWXYZ23456789",u=new Uint32Array(8);crypto.getRandomValues(u);let r="";for(let i=0;i<8;i++)r+=a[u[i]%a.length];return "DIAS-"+r}
 let POSTS=[],LAST=null,MORE=false,netErr=false,FILT="all",ONL=[],PH="",netTimer=null;
-const ago=t=>{const s=Math.max(0,(Date.now()-ms(t))/1000);if(s<60)return"à l'instant";if(s<3600)return"il y a "+Math.floor(s/60)+" min";if(s<86400)return"il y a "+Math.floor(s/3600)+" h";return new Date(ms(t)).toLocaleDateString("fr-FR")};
+const ago=t=>{const s=Math.max(0,(Date.now()-ms(t))/1000);if(s<60)return"à l'instant";if(s<3600)return"il y a "+Math.floor(s/60)+" min";if(s<86400)return"il y a "+Math.floor(s/3600)+" h";return new Date(ms(t)).toLocaleDateString(DIAS_I18N.loc())};
 const myProv=()=>prof().prov||M.prov;
 function shrink(f,max,q){return new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",q))};i.onerror=ko;i.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
 function beat(){if(!M||!DB||document.visibilityState!=="visible")return;setDoc(doc(DB,"presence",M.ref),{nom:M.nom,province:myProv(),lastSeen:new Date()}).catch(()=>{})}
@@ -169,7 +170,7 @@ async function partView(){const s=$("v-part");s.textContent="";s.append(E("h2",n
  return partDash(s,d)}
 function partForm(s,pv){pv=pv||{};const f=E("div","pan");
  f.innerHTML='<h3>📝 Demande de partenariat</h3><label>Nom de l\'entreprise / ONG</label><input id="po" maxlength="120"><label>RCCM / Numéro d\'enregistrement</label><input id="pr" maxlength="60"><label>Secteur</label><select id="pt2"></select><label>Chiffre d\'affaires annuel ($, facultatif)</label><input id="pca" maxlength="20" inputmode="numeric"><label>Personne à contacter</label><input id="pc2" maxlength="100"><label>Téléphone WhatsApp (avec indicatif)</label><input id="pph" maxlength="30" placeholder="+243 ..."><label>E-mail</label><input id="pem" type="email" maxlength="100"><label>Motivation du partenariat</label><textarea id="pms" maxlength="500" placeholder="Présentez votre organisation et ce que vous proposez"></textarea><button class="nav" id="pb2">Envoyer ma demande</button><div id="pg" class="small" style="margin-top:10px"></div>';
- s.append(f);SECT.forEach(x=>$("pt2").append(E("option",null,x)));
+ s.append(f);SECT.forEach(x=>{const o=E("option",null,x);o.value=x;$("pt2").append(o)});
  $("po").value=pv.organisation||"";$("pr").value=pv.rccm||"";$("pt2").value=pv.type||"Technologie";$("pca").value=pv.ca||"";$("pc2").value=pv.contact||M.nom;$("pph").value=pv.telephone||"";$("pem").value=pv.email||U;$("pms").value=pv.message||"";
  $("pb2").onclick=async()=>{const g=$("pg"),o=$("po").value.trim(),ph=$("pph").value.trim();g.style.color="#d1121f";if(o.length<2){g.textContent="Indiquez le nom de l'organisation.";return}if(ph.replace(/\D/g,"").length<8){g.textContent="Entrez un numéro valide.";return}
   try{await setDoc(doc(DB,"partenaires",M.ref),{organisation:o,type:$("pt2").value,rccm:$("pr").value.trim(),ca:$("pca").value.trim(),message:$("pms").value.trim(),contact:$("pc2").value.trim(),telephone:ph,email:$("pem").value.trim().toLowerCase(),membreRef:M.ref,statut:"en_attente",createdAt:new Date()});partView()}catch(e){g.textContent="Envoi impossible. Réessayez plus tard."}}}
@@ -194,7 +195,7 @@ function ambView(){const s=$("v-amb");s.textContent="";s.append(E("h2",null,"�
  const last=AMBS[0];
  if(last){s.append(E("div","pan st",last.statut==="valide"?"Votre candidature a été validée. Merci de représenter DIAS FONDATION !":last.statut==="rejete"?"Votre candidature n'a pas été retenue."+(last.motif?" Motif : "+last.motif+".":"")+" Contactez l'équipe pour en savoir plus.":"Votre candidature ("+(last.ref||"")+") est en cours d'examen par l'équipe."));if(last.statut!=="rejete")return}
  const f=E("div","pan");f.innerHTML='<h3>Candidater</h3><label>Téléphone WhatsApp (avec indicatif)</label><input id="ap" maxlength="30" placeholder="+243 ..."><label>Province</label><select id="av"></select><button class="nav" id="ab">Envoyer ma candidature</button><div id="amg" class="small" style="margin-top:10px"></div>';s.append(f);
- PROV.forEach(p=>$("av").append(E("option",null,p)));$("av").value=prof().prov||M.prov;
+ PROV.forEach(p=>{const o=E("option",null,p);o.value=p;$("av").append(o)});$("av").value=prof().prov||M.prov;
  $("ab").onclick=async()=>{const ph=$("ap").value.trim(),g=$("amg");if(ph.replace(/\D/g,"").length<8){g.textContent="Entrez un numéro valide.";g.style.color="#d1121f";return}
   try{const d={type:"Ambassadeur",ref:rid(),statut:"en_attente",nom:M.nom,telephone:ph,email:U,ville:$("av").value,createdAt:new Date()};await addDoc(collection(DB,"adhesions"),d);AMBS.unshift(d);ambView()}catch(e){g.textContent="Envoi impossible. Réessayez plus tard.";g.style.color="#d1121f"}}}
 function setView(){const s=$("v-set");s.textContent="";s.append(E("h2",null,"⚙️ Paramètres"));
@@ -202,20 +203,20 @@ function setView(){const s=$("v-set");s.textContent="";s.append(E("h2",null,"⚙
  const g=E("div","small","");g.style.cssText="margin-top:10px;color:var(--blue)";
  const pw=E("button","nav","Changer mon mot de passe");pw.onclick=async()=>{try{await sendPasswordResetEmail(AUTH,U);g.textContent="Un e-mail vient de vous être envoyé pour choisir un nouveau mot de passe."}catch(e){g.textContent="Envoi impossible pour le moment."}};a.append(pw,g);s.append(a);
  const b=E("div","pan");b.append(E("h3",null,"Apparence"));const dk=E("button","g","Mode sombre / clair");dk.style.cssText="width:100%;margin-top:6px";dk.onclick=()=>{const c=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",c);ls("dias_theme",c)};b.append(dk,E("div","small mut","Photo, nom et province de la carte : menu ☰ → Ma carte."));s.append(b);
- const l=E("div","pan");l.append(E("h3",null,"Langue"),E("div","small mut","Français. L'anglais, le japonais, le lingala et le swahili arrivent bientôt."));s.append(l);
+ const l=E("div","pan");l.append(E("h3",null,"Langue"),E("div","small mut","Choisissez votre langue avec le sélecteur 🌐 en haut de l'écran."));s.append(l);
  const o=E("button","d","Se déconnecter");o.style.cssText="width:100%;margin-top:14px";o.onclick=()=>$("lo3").click();s.append(o)}
 const nz=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 const FAQ=[
- {k:["reseau","discussion","message","publier","photo de","commentaire","like","en ligne"],a:"Le Réseau DIAS privé est dans le menu ☰ : partagez le texte et les photos de vos actions, aimez et commentez les publications, filtrez par province ou par Japon et voyez qui est en ligne. L'équipe supprime les contenus inappropriés."},
- {k:["partenaire","partenariat","entreprise","sponsor"],a:"Menu ☰ → Espace partenaires : remplissez la demande de partenariat. Vous voyez ici son statut (en attente, validée ou rejetée) et, si elle est rejetée, vous pouvez redéposer une demande."},
- {k:["temps","dure","expir","renouvel","validit","duree","annee"],a:"Le paiement de 120 $ est unique : il n'y a pas de renouvellement à faire."},
- {k:["payer","paiement","frais","120","cotisation","prix","coute","cout","combien","tarif"],a:"L'adhésion Premium coûte 120 $. Le paiement se fait en mobile money (M-Pesa, Airtel Money, Orange Money) sur les numéros de la fondation indiqués lors de l'adhésion. L'équipe vérifie ensuite votre paiement et valide votre compte."},
- {k:["carte","qr","pdf","photo"],a:"Votre carte est dans le menu ☰ → Ma carte. Vous pouvez y changer le nom, la province et la photo, la télécharger en PDF et activer le QR."},
- {k:["ambassadeur"],a:"Menu ☰ → Devenir ambassadeur : remplissez le formulaire, l'équipe examine votre candidature."},
- {k:["evenement","agenda","date","reunion"],a:"Les événements publiés par l'équipe sont dans le menu ☰ → Événements."},
- {k:["emploi","job","opportunit","offre","travail"],a:"Les opportunités, offres d'emploi et offres spéciales sont dans le menu ☰."},
- {k:["mot de passe","mdp","connecter","connexion"],a:"Menu ☰ → Paramètres → Changer mon mot de passe : un e-mail vous sera envoyé."},
- {k:["contact","equipe","aide","whatsapp","joindre"],a:"Pour joindre l'équipe DIAS FONDATION"+(WA?", écrivez-nous sur WhatsApp.":", utilisez le contact indiqué sur le site."),wa:1}];
+ {k:["reseau","discussion","message","publier","photo de","commentaire","like","en ligne","network","comment","online","ネットワーク","投稿","コメント","mtandao","chapisho"],a:"Le Réseau DIAS privé est dans le menu ☰ : partagez le texte et les photos de vos actions, aimez et commentez les publications, filtrez par province ou par Japon et voyez qui est en ligne. L'équipe supprime les contenus inappropriés."},
+ {k:["partenaire","partenariat","entreprise","sponsor","partner","company","パートナー","企業","mshirika","kampuni"],a:"Menu ☰ → Espace partenaires : remplissez la demande de partenariat. Vous voyez ici son statut (en attente, validée ou rejetée) et, si elle est rejetée, vous pouvez redéposer une demande."},
+ {k:["temps","dure","expir","renouvel","validit","duree","annee","how long","duration","renew","expire","期間","更新","有効期限","ntango","muda","kuisha","upya"],a:"Le paiement de 120 $ est unique : il n'y a pas de renouvellement à faire."},
+ {k:["payer","paiement","frais","120","cotisation","prix","coute","cout","combien","tarif","pay","price","cost","fee","how much","支払","料金","いくら","費用","kofuta","motuya","lipa","bei","gharama","malipo"],a:"L'adhésion Premium coûte 120 $. Le paiement se fait en mobile money (M-Pesa, Airtel Money, Orange Money) sur les numéros de la fondation indiqués lors de l'adhésion. L'équipe vérifie ensuite votre paiement et valide votre compte."},
+ {k:["carte","qr","pdf","photo","card","カード","karte","kadi"],a:"Votre carte est dans le menu ☰ → Ma carte. Vous pouvez y changer le nom, la province et la photo, la télécharger en PDF et activer le QR."},
+ {k:["ambassadeur","ambassador","アンバサダー","balozi"],a:"Menu ☰ → Devenir ambassadeur : remplissez le formulaire, l'équipe examine votre candidature."},
+ {k:["evenement","agenda","date","reunion","event","イベント","tukio","matukio"],a:"Les événements publiés par l'équipe sont dans le menu ☰ → Événements."},
+ {k:["emploi","job","opportunit","offre","travail","job","work","offer","opportunity","求人","仕事","オファー","kazi","nafasi","fursa"],a:"Les opportunités, offres d'emploi et offres spéciales sont dans le menu ☰."},
+ {k:["mot de passe","mdp","connecter","connexion","password","login","sign in","パスワード","ログイン","nenosiri","ingia"],a:"Menu ☰ → Paramètres → Changer mon mot de passe : un e-mail vous sera envoyé."},
+ {k:["contact","equipe","aide","whatsapp","joindre","help","team","連絡","サポート","チーム","wasiliana","msaada","timu"],a:"Pour joindre l'équipe DIAS FONDATION"+(WA?", écrivez-nous sur WhatsApp.":", utilisez le contact indiqué sur le site."),wa:1}];
 const SUG=["Comment payer ?","Ma carte","Devenir ambassadeur","Durée de l'adhésion","Contacter l'équipe"];
 function bub(t,c,wa){const b=E("div","bb "+c,t);if(wa&&WA){b.append(document.createElement("br"));const a=E("a",null,"Ouvrir WhatsApp");a.href="https://wa.me/"+WA;a.target="_blank";a.rel="noopener noreferrer";b.append(a)}$("am2").append(b);$("am2").scrollTop=1e5}
 function ask(q){q=q.trim();if(!q)return;bub(q,"u");const n=nz(q),f=FAQ.find(x=>x.k.some(k=>n.includes(nz(k))));
@@ -288,4 +289,5 @@ onAuthStateChanged(auth,async u=>{if(!u){showS("auth");$("hb").hidden=true;$("be
   showS("app");$("hb").hidden=false;$("bell").hidden=false;$("ai").hidden=false;beat();await loadNotifs();clearInterval(window.__nt);window.__nt=setInterval(loadNotifs,120000);go("home")}
  catch(e){gate("Impossible de charger votre adhésion. Réessayez plus tard.")}});
 }
+DIAS_I18N.mountSelect($("lgs"));DIAS_I18N.init();document.addEventListener("dias-lang",()=>{if(M)go(view)});
 </script></body></html>

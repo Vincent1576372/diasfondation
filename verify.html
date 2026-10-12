@@ -5,6 +5,7 @@
 .ok{color:#166534}.no{color:#991b1b}h1{font-size:18px;margin:0 0 14px;color:#1E3A8A}.big{font-size:44px}b{font-size:20px}a{color:#1E3A8A}</style></head><body>
 <div class="c"><h1>DIAS FONDATION • Vérification de carte</h1><div id="r">Vérification en cours…</div><p><a href="index.html">Retour au site</a></p></div>
 <script src="dias-config.js"></script>
+<script src="dias-i18n.js"></script>
 <script>
 (function(){var r=document.getElementById("r"),F=(window.DIAS||{}).firebase||{},ref=new URLSearchParams(location.search).get("ref");
 function bad(t){r.innerHTML='<div class="big no">✗</div><div class="no"></div>';r.lastChild.textContent=t}
@@ -14,4 +15,5 @@ fetch("https://firestore.googleapis.com/v1/projects/"+F.projectId+"/databases/(d
  if(g("statut")==="valide"){r.innerHTML='<div class="big ok">✓</div><div class="ok"><b></b><br>Membre Premium valide<br><span id="n"></span><br><span id="e"></span></div>';
   r.querySelector("b").textContent=g("nom");document.getElementById("n").textContent="N° "+g("ref");var y=g("valideLe")?new Date(g("valideLe")).getFullYear():"";document.getElementById("e").textContent=y?"Membre depuis "+y:""}
  else bad("Adhésion non valide.")}).catch(function(){bad("Aucun membre trouvé pour ce numéro.")})})();
+if(window.DIAS_I18N)DIAS_I18N.init();
 </script></body></html>
