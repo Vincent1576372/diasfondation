@@ -64,19 +64,25 @@ function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L
   p.append("Tél : ",a," • ",r.email||"—"," • ",r.ville||"—");c.append(p);
   if(r.paiement||r.transactionId){const q2=el("div","m");q2.append((r.paiement||"")+" "+(r.numeroPaiement||"")+" • ID : ");q2.append(el("span","tx",r.transactionId||"—"));q2.append(" • "+(r.montant||""));c.append(q2)}
   const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{let motif="";if(s==="rejete"){motif=askMotif();if(!motif)return}bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso,motif:s==="rejete"?motif:""};await updateDoc(doc(db,"adhesions",r.id),u);
-if(s==="valide"&&r.type==="Adhésion Premium"){await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",valideLe:iso});await grant(r)}
-else if(r.type==="Adhésion Premium"){await deleteDoc(doc(db,"membres",r.ref));const k=eid(r);if(k)await deleteDoc(doc(db,"membres_email",k))}
+if(s==="valide"&&r.type==="Adhésion Premium"){await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",valideLe:iso});await grant(r);try{await pub(r,iso)}catch(x){}}
+else if(r.type==="Adhésion Premium"){await deleteDoc(doc(db,"membres",r.ref));try{await unpub(r)}catch(x){}const k=eid(r);if(k)await deleteDoc(doc(db,"membres_email",k))}
 if(r.type==="Ambassadeur"&&s!=="en_attente"&&eid(r)){const g=await getDoc(doc(db,"membres_email",eid(r)));if(g.exists())await notif(g.data().ref,"Candidature ambassadeur",s==="valide"?"Votre candidature d'ambassadeur a été validée. Merci de représenter DIAS FONDATION !":"Votre candidature d'ambassadeur n'a pas été retenue. Motif : "+motif)}}catch(e){alert("Action refusée.")}};A.append(bt)});
   if(r.statut==="valide"&&r.type==="Adhésion Premium"&&tel){const base=location.origin+location.pathname.replace(/[^\/]*$/,"")+"membre.html";const w=el("a","wa","Envoyer la carte sur WhatsApp");w.href="https://wa.me/"+tel+"?text="+encodeURIComponent("Bonjour "+(r.nom||"")+", votre adhésion DIAS FONDATION est validée ✅. Pour voir votre carte : ouvrez "+base+" , créez votre compte avec l'e-mail de votre fiche, confirmez-le, puis connectez-vous. Votre numéro de membre : "+r.ref);w.target="_blank";w.rel="noopener";A.append(w)}
+if(r.statut==="valide"&&r.type==="Adhésion Premium"){const off=r.album==="non",tg=el("button","wt",off?"Afficher dans l'album":"Retirer de l'album");tg.onclick=async()=>{tg.disabled=true;try{if(off){await updateDoc(doc(db,"adhesions",r.id),{album:"oui"});await pub({...r,album:"oui"},r.traiteLe)}else{await updateDoc(doc(db,"adhesions",r.id),{album:"non"});await unpub(r)}}catch(e){alert("Action refusée.");tg.disabled=false}};A.append(tg)}
 c.append(A);L.append(c)});
  if(!v.length)L.append(el("div","m","Aucune demande."))}
 async function notif(ref,titre,texte){if(!ref)return;try{await addDoc(collection(db,"notifications"),{pour:ref,titre,texte,lu:false,createdAt:new Date()})}catch(e){}}
 function askMotif(){const t=prompt("Motif du rejet (le membre le verra) :");if(t===null)return "";const m=t.trim();if(!m){alert("Le motif est obligatoire pour rejeter.");return ""}return m.slice(0,300)}
 const eid=r=>String(r.email||"").trim().toLowerCase();
 async function grant(r){const k=eid(r);if(!k)return;await setDoc(doc(db,"membres_email",k),{ref:r.ref||"",nom:r.nom||""})}
+// Album public : l'identifiant du document est un hash du numéro de membre (le numéro n'est jamais exposé)
+async function pid(ref){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(ref));return [...new Uint8Array(b)].slice(0,12).map(x=>x.toString(16).padStart(2,"0")).join("")}
+function shown(nom){const p=String(nom||"").trim().split(/\s+/).filter(Boolean);if(!p.length)return "Membre";const f=p[0].charAt(0).toUpperCase()+p[0].slice(1).toLowerCase();return p.length>1?f+" "+p[p.length-1].charAt(0).toUpperCase()+".":f}
+async function pub(r,iso){if(r.album==="non"||!r.ref)return;let d=new Date(iso||Date.now());if(isNaN(d))d=new Date();await setDoc(doc(db,"membres_publics",await pid(r.ref)),{nom:shown(r.nom),ville:String(r.ville||"").trim().slice(0,40),annee:String(d.getFullYear()),valideLe:d})}
+async function unpub(r){if(r.ref)await deleteDoc(doc(db,"membres_publics",await pid(r.ref)))}
 [1,2,3,4].forEach(i=>$("tb"+i).onclick=()=>tab(i));
 function tab(n){[1,2,3,4].forEach(i=>{$("sec"+i).hidden=n!==i;$("tb"+i).className=n===i?"on":""})}
-$("sy").onclick=async()=>{let n=0;for(const r of rows){if(r.statut==="valide"&&r.type==="Adhésion Premium"&&eid(r)){try{await grant(r);n++}catch(e){}}}alert(n+" accès synchronisé(s).")};
+$("sy").onclick=async()=>{if(!confirm("Synchroniser les accès ET ajouter les membres validés à l'album public (prénom, initiale, ville) ? Ceux marqués « Retirer de l'album » restent exclus."))return;let n=0;for(const r of rows){if(r.statut==="valide"&&r.type==="Adhésion Premium"&&eid(r)){try{await grant(r);n++;await pub(r,r.traiteLe)}catch(e){}}}alert(n+" accès synchronisé(s).")};
 let pu=null;const CATL={evenement:"📅 Événement",opportunite:"💼 Opportunité",emploi:"👔 Offre d'emploi",offre:"🎁 Offre spéciale",international:"🌍 Connexion internationale",pub:"📢 Espace publicitaire"};let prows=[];
 onAuthStateChanged(auth,u2=>{if(pu){pu();pu=null}if(u2)pu=onSnapshot(query(collection(db,"publications"),orderBy("createdAt","desc")),s=>{prows=s.docs.map(d=>({id:d.id,...d.data()}));pdraw()},e=>{$("plist").textContent="Accès refusé."})});
 function pdraw(){const L=$("plist");L.textContent="";const w=el("div");w.style.cssText="max-width:900px;margin:auto;padding:0 16px 40px;display:grid;gap:12px";
