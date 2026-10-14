@@ -27,10 +27,14 @@ header button{background:rgba(255,255,255,.15);color:#fff}
 <input id="em" type="email" placeholder="E-mail" autocomplete="username"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password">
 <button class="pri" id="lg">Se connecter</button><div id="er"></div></div>
 <div id="app" style="display:none"><header><b>DIAS FONDATION • Demandes</b><span id="cnt"></span><button id="lo">Déconnexion</button></header>
-<div class="tb"><button id="tb1" class="on">Demandes</button><button id="tb2">Publications</button><button id="tb3">Réseau</button><button id="tb4">Partenaires</button></div>
+<div class="tb"><button id="tb1" class="on">Demandes</button><button id="tb2">Publications</button><button id="tb3">Réseau</button><button id="tb4">Partenaires</button><button id="tb5">Vitrine</button></div>
 <div id="sec1"><div class="bar"><input id="q" placeholder="Rechercher (nom, téléphone, référence)"><select id="fl"><option value="">Tous</option><option value="en_attente">En attente</option><option value="valide">Validés</option><option value="rejete">Rejetés</option></select><button id="ex">Exporter CSV</button><button id="sy" class="sy">Synchroniser les accès</button></div>
 <div id="list"></div></div>
 <div id="sec3" hidden><div id="nlist"></div></div><div id="sec4" hidden><div id="qlist"></div><div id="rlist"></div></div>
+<div id="sec5" hidden><div class="fm"><div class="c" id="vf"><h3>Vitrine du site : équipe et partenaires</h3><div class="m">Ces cartes défilent dans « Espace partenaires » sur la page d'accueil.</div><div class="m" id="vst" style="margin-top:6px;font-weight:700"></div>
+<input id="vn" placeholder="Nom complet (obligatoire)" maxlength="80"><input id="vt" placeholder="Titre ou poste (ex : Représentant • Japon)" maxlength="120"><input id="vph" type="file" accept="image/*"><img id="vpv" alt="" hidden style="width:96px;height:128px;object-fit:cover;border-radius:10px;margin-top:10px">
+<div class="act"><button class="pri" id="vb" style="margin-top:4px">Ajouter</button><button class="wt" id="vc" hidden>Annuler</button></div><div id="vm" style="font-size:14px;margin-top:6px"></div></div>
+<div class="act" style="margin:12px 0"><button class="wt" id="vimp">Importer les cartes actuelles du site</button><button class="wt" id="vrev" hidden>Revenir aux cartes d'origine</button></div><div id="vlist" style="display:grid;gap:12px;padding-bottom:40px"></div></div></div>
 <div id="sec2" hidden><div class="fm"><div class="c" id="pf">
 <select id="pc"><option value="evenement">📅 Événement</option><option value="opportunite">💼 Opportunité</option><option value="emploi">👔 Offre d'emploi</option><option value="offre">🎁 Offre spéciale</option><option value="international">🌍 Connexion internationale</option><option value="pub">📢 Espace publicitaire</option></select>
 <input id="pt" placeholder="Titre (obligatoire)" maxlength="120"><textarea id="pd" placeholder="Description" maxlength="2000"></textarea>
@@ -82,8 +86,40 @@ async function pid(ref){const b=await crypto.subtle.digest("SHA-256",new TextEnc
 function shown(nom){const p=String(nom||"").trim().split(/\s+/).filter(Boolean);if(!p.length)return "Membre";const f=p[0].charAt(0).toUpperCase()+p[0].slice(1).toLowerCase();return p.length>1?f+" "+p[p.length-1].charAt(0).toUpperCase()+".":f}
 async function pub(r,iso){if(r.album==="non"||!r.ref)return;let d=new Date(iso||Date.now());if(isNaN(d))d=new Date();const pr=doc(db,"membres_publics",await pid(r.ref));if((await getDoc(pr)).exists())return;await setDoc(pr,{nom:shown(r.nom),ville:String(r.ville||"").trim().slice(0,40),annee:String(d.getFullYear()),valideLe:d})}
 async function unpub(r){if(r.ref)await deleteDoc(doc(db,"membres_publics",await pid(r.ref)))}
-[1,2,3,4].forEach(i=>$("tb"+i).onclick=()=>tab(i));
-function tab(n){[1,2,3,4].forEach(i=>{$("sec"+i).hidden=n!==i;$("tb"+i).className=n===i?"on":""})}
+// ---- Vitrine (cartes du bandeau « Espace partenaires ») ----
+let vrows=[],vu=null,vedit=null,vphoto="",von=false;const vsay=t=>{$("vm").textContent=t};
+const vcfg=on=>setDoc(doc(db,"site","vitrine"),{on});
+async function vstatus(){try{const g=await getDoc(doc(db,"site","vitrine"));von=g.exists()&&g.data().on===true;$("vst").textContent=von?"Le site affiche les cartes gérées ici.":"Le site affiche les cartes d'origine (dans le code).";$("vrev").hidden=!von}catch(e){}}
+function vshrink(src){return new Promise((ok,ko)=>{const i=new Image();i.onerror=ko;i.onload=()=>{const W=400,H=533,ar=W/H;let sw=i.width,sh=i.height,sx=0;if(sw/sh>ar){const nw=sh*ar;sx=(sw-nw)/2;sw=nw}else sh=sw/ar;const cv=document.createElement("canvas");cv.width=W;cv.height=H;cv.getContext("2d").drawImage(i,sx,0,sw,sh,0,0,W,H);let q=.8,d=cv.toDataURL("image/jpeg",q);while(d.length>55000&&q>.35){q-=.1;d=cv.toDataURL("image/jpeg",q)}ok(d)};i.src=src})}
+$("vph").onchange=()=>{const f=$("vph").files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{vphoto=await vshrink(r.result);$("vpv").src=vphoto;$("vpv").hidden=false;vsay("")}catch(e){vsay("Photo illisible.")}};r.readAsDataURL(f)};
+function vreset(){vedit=null;vphoto="";$("vn").value="";$("vt").value="";$("vph").value="";$("vpv").hidden=true;$("vb").textContent="Ajouter";$("vc").hidden=true}
+$("vc").onclick=()=>{vreset();vsay("")};
+$("vb").onclick=async()=>{const nom=$("vn").value.trim(),titre=$("vt").value.trim();if(nom.length<2){vsay("Entrez le nom.");return}if(!vedit&&!vphoto){vsay("Choisissez une photo.");return}
+ if(!von&&!confirm("Dès cette carte, le site n'affichera plus que les cartes de la Vitrine. Avez-vous déjà importé les cartes actuelles ? Continuer ?"))return;
+ $("vb").disabled=true;try{if(vedit){const u={nom,titre};if(vphoto)u.photo=vphoto;await updateDoc(doc(db,"vitrine",vedit.id),u);vsay("Modifié.")}
+ else{const max=vrows.reduce((m,x)=>Math.max(m,x.ordre||0),0);await addDoc(collection(db,"vitrine"),{nom,titre,photo:vphoto,ordre:max+1,actif:true,createdAt:new Date()});vsay("Ajouté : visible sur le site.")}
+ await vcfg(true);vreset();vstatus()}catch(e){vsay("Action refusée.")}$("vb").disabled=false};
+$("vimp").onclick=async()=>{if(!confirm("Ajouter à la Vitrine les cartes actuellement dans le site ?"))return;const b=$("vimp");b.disabled=true;vsay("Import en cours…");
+ try{const html=await (await fetch("index.html",{cache:"no-store"})).text(),dc=new DOMParser().parseFromString(html,"text/html"),tp=id=>{const t=dc.getElementById(id);return t&&t.content},part=tp("dias-part-tpl");if(!part)throw 0;
+ const gsrc=k=>{const t=tp(k==="za"?"dias-za-tpl":"dias-jp-tpl"),i=t&&t.querySelector(k==="za"?"img":".djp-g img");return i?i.getAttribute("src"):""};
+ let max=vrows.reduce((m,x)=>Math.max(m,x.ordre||0),0),n=0;
+ for(const c of part.querySelectorAll(".dpt-c")){const im=c.querySelector("img"),k=im.getAttribute("data-s"),src=k?gsrc(k):im.getAttribute("src");if(!src)continue;const photo=await vshrink(src);await addDoc(collection(db,"vitrine"),{nom:c.querySelector("b").textContent,titre:c.querySelector("span").textContent,photo,ordre:++max,actif:true,createdAt:new Date()});n++}
+ await vcfg(true);vsay(n+" carte(s) importée(s).");vstatus()}catch(e){vsay("Import impossible.")}b.disabled=false};
+$("vrev").onclick=async()=>{if(!confirm("Le site réaffichera les cartes d'origine. Vos cartes de la Vitrine sont conservées. Continuer ?"))return;try{await vcfg(false);vsay("Cartes d'origine rétablies.");vstatus()}catch(e){vsay("Action refusée.")}};
+function vdraw(){const L=$("vlist");L.textContent="";if(!vrows.length){L.append(el("div","m","Aucune carte ici. Le site affiche pour l'instant ses cartes d'origine. Touchez « Importer » pour les reprendre."));return}
+ vrows.forEach((x,i)=>{const c=el("div","c");c.style.cssText="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap";const im=el("img");im.alt="";im.src=/^data:image\/jpeg;base64,/.test(x.photo||"")?x.photo:"";im.style.cssText="width:72px;height:96px;object-fit:cover;border-radius:10px;flex:none";
+ const t=el("div");t.style.flex="1 1 160px";const h=el("h3",null,x.nom||"");h.append(el("span","b "+(x.actif?"valide":"en_attente"),x.actif?"Visible":"Masquée"));t.append(h,el("div","m",x.titre||""));
+ const A=el("div","act");A.style.flex="1 1 100%";
+ const mk=(txt,cls,fn,dis)=>{const b=el("button",cls,txt);b.disabled=!!dis;b.onclick=async()=>{b.disabled=true;try{await fn()}catch(e){vsay("Action refusée.")}};A.append(b)};
+ const sw=async o=>{await Promise.all([updateDoc(doc(db,"vitrine",x.id),{ordre:o.ordre}),updateDoc(doc(db,"vitrine",o.id),{ordre:x.ordre})])};
+ mk("↑","wt",()=>sw(vrows[i-1]),i===0);mk("↓","wt",()=>sw(vrows[i+1]),i===vrows.length-1);
+ mk("Modifier","wt",async()=>{vedit=x;vphoto="";$("vn").value=x.nom||"";$("vt").value=x.titre||"";$("vpv").src=im.src;$("vpv").hidden=false;$("vb").textContent="Enregistrer";$("vc").hidden=false;vsay("Modification : changez le nom, le titre ou la photo.");$("vf").scrollIntoView({behavior:"smooth"});vdraw()});
+ mk(x.actif?"Masquer":"Afficher","wt",()=>updateDoc(doc(db,"vitrine",x.id),{actif:!x.actif}));
+ mk("Supprimer","no",async()=>{if(confirm("Supprimer la carte de "+(x.nom||"")+" ?"))await deleteDoc(doc(db,"vitrine",x.id));else vdraw()});
+ c.append(im,t,A);L.append(c)})}
+onAuthStateChanged(auth,u=>{if(vu){vu();vu=null}if(u){vstatus();vu=onSnapshot(query(collection(db,"vitrine"),orderBy("ordre")),s=>{vrows=s.docs.map(d=>({id:d.id,...d.data()}));vdraw()},()=>{$("vlist").textContent="Accès refusé."})}});
+[1,2,3,4,5].forEach(i=>$("tb"+i).onclick=()=>tab(i));
+function tab(n){[1,2,3,4,5].forEach(i=>{$("sec"+i).hidden=n!==i;$("tb"+i).className=n===i?"on":""})}
 $("sy").onclick=async()=>{if(!confirm("Synchroniser les accès ET ajouter les membres validés à l'album public (prénom, initiale, ville) ? Ceux marqués « Retirer de l'album » restent exclus."))return;let n=0;for(const r of rows){if(r.statut==="valide"&&r.type==="Adhésion Premium"&&eid(r)){try{await grant(r);n++;await pub(r,r.traiteLe)}catch(e){}}}alert(n+" accès synchronisé(s).")};
 let pu=null;const CATL={evenement:"📅 Événement",opportunite:"💼 Opportunité",emploi:"👔 Offre d'emploi",offre:"🎁 Offre spéciale",international:"🌍 Connexion internationale",pub:"📢 Espace publicitaire"};let prows=[];
 onAuthStateChanged(auth,u2=>{if(pu){pu();pu=null}if(u2)pu=onSnapshot(query(collection(db,"publications"),orderBy("createdAt","desc")),s=>{prows=s.docs.map(d=>({id:d.id,...d.data()}));pdraw()},e=>{$("plist").textContent="Accès refusé."})});

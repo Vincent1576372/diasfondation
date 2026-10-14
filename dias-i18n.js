@@ -60,6 +60,9 @@ D["Nos partenaires et représentants, sur le terrain comme à l'international."]
 D["Devenir partenaire"]=["Become a partner","パートナーになる","Kokoma partenaire","Kuwa mshirika"];
 D["Représentant • Japon"]=["Representative • Japan","代表 • 日本","Représentant • Japon","Mwakilishi • Japani"];
 D["Représentant • Afrique du Sud"]=["Representative • South Africa","代表 • 南アフリカ","Représentant • Afrika ya Sud","Mwakilishi • Afrika Kusini"];
+D["Chargé de la mobilisation • Antenne Funa"]=["Mobilization Officer • Funa Branch","動員担当 • フナ支部","Responsable ya mobilisation • Antenne Funa","Msimamizi wa uhamasishaji • Tawi la Funa"];
+D["Chargé artistique et mobilisateur attitré de DIAS FONDATION"]=["Artistic Officer and official Mobilizer of DIAS FONDATION","DIAS FONDATION 芸術担当・公式動員担当","Responsable artistique mpe mobilisateur ya DIAS FONDATION","Msimamizi wa sanaa na mhamasishaji rasmi wa DIAS FONDATION"];
+D["Secrétaire général de la Funa"]=["Secretary General of Funa","フナ事務総長","Sekretere général ya Funa","Katibu Mkuu wa Funa"];
 D["Rejoignez DIAS FONDATION"]=["Join DIAS FONDATION","DIAS FONDATION に参加しよう","Kota na DIAS FONDATION","Jiunge na DIAS FONDATION"];
 D["Devenez membre et accédez à l'espace membre : carte officielle, réseau, événements et offres."]=["Become a member and access the member space: official card, network, events and offers.","メンバーになって、メンバー専用ページをご利用ください。公式カード、ネットワーク、イベント、オファーが使えます。","Kokoma membre mpe kokɔta na esika ya membre : karte ya officiel, réseau, makambo mpe offres.","Kuwa mwanachama na ufikie eneo la wanachama: kadi rasmi, mtandao, matukio na ofa."];
 D["Rejoindre la fondation — $120"]=["Join the foundation — $120","財団に参加 — $120","Kota na fondation — $120","Jiunge na taasisi — $120"];
