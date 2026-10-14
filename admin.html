@@ -51,7 +51,7 @@ onAuthStateChanged(auth,async u=>{if(unsub){unsub();unsub=null}
  if(!u){$("login").style.display="block";$("app").style.display="none";return}
  try{await getDocs(query(collection(db,"adhesions"),limit(1)))}catch(e){$("login").style.display="block";$("app").style.display="none";$("er").textContent="Accès refusé : ce compte n'est pas administrateur.";try{await signOut(auth)}catch(x){}return}
  $("er").textContent="";$("login").style.display="none";$("app").style.display="block";
- unsub=onSnapshot(query(collection(db,"adhesions"),orderBy("createdAt","desc")),s=>{rows=s.docs.map(d=>({id:d.id,...d.data()}));draw()},e=>{$("list").textContent="Chargement impossible.";});});
+ unsub=onSnapshot(query(collection(db,"adhesions"),orderBy("createdAt","desc"),limit(1000)),s=>{rows=s.docs.map(d=>({id:d.id,...d.data()}));draw()},e=>{$("list").textContent="Chargement impossible.";});});
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const lab={en_attente:"En attente",valide:"Validé",rejete:"Rejeté"};
 function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L.textContent="";
@@ -64,7 +64,7 @@ function draw(){const q=$("q").value.toLowerCase(),f=$("fl").value,L=$("list");L
   p.append("Tél : ",a," • ",r.email||"—"," • ",r.ville||"—");c.append(p);
   if(r.paiement||r.transactionId){const q2=el("div","m");q2.append((r.paiement||"")+" "+(r.numeroPaiement||"")+" • ID : ");q2.append(el("span","tx",r.transactionId||"—"));q2.append(" • "+(r.montant||""));c.append(q2)}
   const A=el("div","act");[["Valider","ok","valide"],["Rejeter","no","rejete"],["Remettre en attente","wt","en_attente"]].forEach(([t,k,s])=>{if(r.statut===s)return;const bt=el("button",k,t);bt.onclick=async()=>{let motif="";if(s==="rejete"){motif=askMotif();if(!motif)return}bt.disabled=true;try{const iso=new Date().toISOString(),u={statut:s,traiteLe:iso,motif:s==="rejete"?motif:""};await updateDoc(doc(db,"adhesions",r.id),u);
-if(s==="valide"&&r.type==="Adhésion Premium"){await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",valideLe:iso});await grant(r);try{await pub(r,iso)}catch(x){}}
+if(s==="valide"&&r.type==="Adhésion Premium"){const nr=await uniqRef(r);if(nr!==r.ref){await updateDoc(doc(db,"adhesions",r.id),{ref:nr});alert("Ce numéro de membre était déjà utilisé : le nouveau numéro "+nr+" a été attribué.");r.ref=nr}await setDoc(doc(db,"membres",r.ref),{ref:r.ref,nom:r.nom,statut:"valide",valideLe:iso,aid:r.id});await grant(r);try{await pub(r,iso)}catch(x){}}
 else if(r.type==="Adhésion Premium"){await deleteDoc(doc(db,"membres",r.ref));try{await unpub(r)}catch(x){}const k=eid(r);if(k)await deleteDoc(doc(db,"membres_email",k))}
 if(r.type==="Ambassadeur"&&s!=="en_attente"&&eid(r)){const g=await getDoc(doc(db,"membres_email",eid(r)));if(g.exists())await notif(g.data().ref,"Candidature ambassadeur",s==="valide"?"Votre candidature d'ambassadeur a été validée. Merci de représenter DIAS FONDATION !":"Votre candidature d'ambassadeur n'a pas été retenue. Motif : "+motif)}}catch(e){alert("Action refusée.")}};A.append(bt)});
   if(r.statut==="valide"&&r.type==="Adhésion Premium"&&tel){const base=location.origin+location.pathname.replace(/[^\/]*$/,"")+"membre.html";const w=el("a","wa","Envoyer la carte sur WhatsApp");w.href="https://wa.me/"+tel+"?text="+encodeURIComponent("Bonjour "+(r.nom||"")+", votre adhésion DIAS FONDATION est validée ✅. Pour voir votre carte : ouvrez "+base+" , créez votre compte avec l'e-mail de votre fiche, confirmez-le, puis connectez-vous. Votre numéro de membre : "+r.ref);w.target="_blank";w.rel="noopener";A.append(w)}
@@ -76,6 +76,8 @@ function askMotif(){const t=prompt("Motif du rejet (le membre le verra) :");if(t
 const eid=r=>String(r.email||"").trim().toLowerCase();
 async function grant(r){const k=eid(r);if(!k)return;await setDoc(doc(db,"membres_email",k),{ref:r.ref||"",nom:r.nom||"",pid:r.ref?await pid(r.ref):"",album:r.album!=="non"})}
 // Album public : l'identifiant du document est un hash du numéro de membre (le numéro n'est jamais exposé)
+function newRef(){const al="ABCDEFGHJKMNPQRSTUVWXYZ23456789",u=new Uint32Array(8);crypto.getRandomValues(u);let x="";for(let i=0;i<8;i++)x+=al[u[i]%al.length];return "DIAS-"+x}
+async function uniqRef(r){const ex=await getDoc(doc(db,"membres",r.ref));if(!ex.exists())return r.ref;const d=ex.data(),same=d.aid?d.aid===r.id:String(d.nom||"").trim().toLowerCase()===String(r.nom||"").trim().toLowerCase();if(same)return r.ref;for(let i=0;i<8;i++){const n=newRef();if(!(await getDoc(doc(db,"membres",n))).exists())return n}throw new Error("ref")}
 async function pid(ref){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(ref));return [...new Uint8Array(b)].slice(0,12).map(x=>x.toString(16).padStart(2,"0")).join("")}
 function shown(nom){const p=String(nom||"").trim().split(/\s+/).filter(Boolean);if(!p.length)return "Membre";const f=p[0].charAt(0).toUpperCase()+p[0].slice(1).toLowerCase();return p.length>1?f+" "+p[p.length-1].charAt(0).toUpperCase()+".":f}
 async function pub(r,iso){if(r.album==="non"||!r.ref)return;let d=new Date(iso||Date.now());if(isNaN(d))d=new Date();const pr=doc(db,"membres_publics",await pid(r.ref));if((await getDoc(pr)).exists())return;await setDoc(pr,{nom:shown(r.nom),ville:String(r.ville||"").trim().slice(0,40),annee:String(d.getFullYear()),valideLe:d})}
@@ -117,13 +119,13 @@ function rdraw(){const L=$("rlist");L.textContent="";const w=el("div");w.style.c
    const no=el("button","no","Refuser");no.onclick=async()=>{const motif=askMotif();if(!motif)return;try{await updateDoc(doc(db,"propositions",p.id),{statut:"refusee",motif});await notif(p.membreRef,"Proposition refusée","Votre proposition « "+p.titre+" » n'a pas été retenue. Motif : "+motif)}catch(e){alert("Action refusée.")}};A.append(ok,no);c.append(A)}
   w.append(c)});if(!prop.length)w.append(el("div","m","Aucune proposition."));L.append(w)}
 onAuthStateChanged(auth,u3=>{for(const k in subs){subs[k]();delete subs[k]}
- if(u3){subs.n=onSnapshot(query(collection(db,"reseau"),orderBy("createdAt","desc")),s=>{nrows=s.docs.map(d=>({id:d.id,...d.data()}));ndraw()},()=>{});
+ if(u3){subs.n=onSnapshot(query(collection(db,"reseau"),orderBy("createdAt","desc"),limit(150)),s=>{nrows=s.docs.map(d=>({id:d.id,...d.data()}));ndraw()},()=>{});
   subs.s=onSnapshot(collection(db,"signalements"),s=>{rep={};s.docs.forEach(d=>{const k=d.data().postId;rep[k]=(rep[k]||0)+1});ndraw()},()=>{});
   subs.p=onSnapshot(query(collection(db,"partenaires"),orderBy("createdAt","desc")),s=>{qrows=s.docs.map(d=>({id:d.id,...d.data()}));qdraw()},()=>{});
   subs.r=onSnapshot(query(collection(db,"propositions"),orderBy("createdAt","desc")),s=>{prop=s.docs.map(d=>({id:d.id,...d.data()}));rdraw()},()=>{})}});
 $("q").oninput=draw;$("fl").onchange=draw;
 $("ex").onclick=()=>{const k=["ref","type","statut","nom","telephone","email","ville","paiement","numeroPaiement","transactionId","montant"];
- const csv=[k.join(",")].concat(rows.map(r=>k.map(x=>'"'+String(r[x]==null?"":r[x]).replace(/"/g,'""')+'"').join(","))).join("\n");
+ const csv=[k.join(",")].concat(rows.map(r=>k.map(x=>'"'+((v)=>(/^[=+\-@\t\r]/.test(v)&&!/^\+[\d\s().-]+$/.test(v))?"'"+v:v)(String(r[x]==null?"":r[x])).replace(/"/g,'""')+'"').join(","))).join("\n");
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));a.download="adhesions-dias.csv";a.click()};
 }
 </script></body></html>
