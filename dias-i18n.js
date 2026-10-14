@@ -52,6 +52,14 @@ D["La photo et les choix restent sur votre téléphone. Si l'option album est co
 D["Album mis à jour."]=["Album updated.","アルバムを更新しました。","Album ebongoli.","Albamu imesasishwa."];
 D["Retiré de l'album."]=["Removed from the album.","アルバムから削除しました。","Elongolami na album.","Imeondolewa kwenye albamu."];
 D["Album indisponible pour le moment."]=["Album unavailable for now.","現在アルバムは利用できません。","Album ezali te sikoyo.","Albamu haipatikani kwa sasa."];
+D["Poste / profession"]=["Job / profession","職業・役職","Mosala / profession","Kazi / taaluma"];
+D["Ex : Infirmier, Étudiant, Entrepreneur"]=["E.g. Nurse, Student, Entrepreneur","例：看護師、学生、起業家","Ndakisa : Infirmier, Moyekoli, Entrepreneur","Mfano: Muuguzi, Mwanafunzi, Mjasiriamali"];
+D["Apparaître dans l'album « Déjà membres » du site (photo, nom, poste et province)."]=["Appear in the “Already members” album on the website (photo, name, job and province).","ウェブサイトの「すでにメンバー」アルバムに表示する（写真・名前・職業・州）。","Komonana na album « Basili kokoma ba membre » na site (foto, kombo, mosala mpe province).","Kuonekana kwenye albamu ya «Tayari ni wanachama» kwenye tovuti (picha, jina, kazi na mkoa)."];
+D["Espace partenaires"]=["Partner space","パートナースペース","Esika ya ba partenaire","Eneo la washirika"];
+D["Nos partenaires et représentants, sur le terrain comme à l'international."]=["Our partners and representatives, in the field and internationally.","現地でも国際的にも、私たちのパートナーと代表者をご紹介します。","Ba partenaire mpe ba représentant na biso, na terrain mpe na bapaya.","Washirika na wawakilishi wetu, uwandani na kimataifa."];
+D["Devenir partenaire"]=["Become a partner","パートナーになる","Kokoma partenaire","Kuwa mshirika"];
+D["Représentant • Japon"]=["Representative • Japan","代表 • 日本","Représentant • Japon","Mwakilishi • Japani"];
+D["Représentant • Afrique du Sud"]=["Representative • South Africa","代表 • 南アフリカ","Représentant • Afrika ya Sud","Mwakilishi • Afrika Kusini"];
 D["Rejoignez DIAS FONDATION"]=["Join DIAS FONDATION","DIAS FONDATION に参加しよう","Kota na DIAS FONDATION","Jiunge na DIAS FONDATION"];
 D["Devenez membre et accédez à l'espace membre : carte officielle, réseau, événements et offres."]=["Become a member and access the member space: official card, network, events and offers.","メンバーになって、メンバー専用ページをご利用ください。公式カード、ネットワーク、イベント、オファーが使えます。","Kokoma membre mpe kokɔta na esika ya membre : karte ya officiel, réseau, makambo mpe offres.","Kuwa mwanachama na ufikie eneo la wanachama: kadi rasmi, mtandao, matukio na ofa."];
 D["Rejoindre la fondation — $120"]=["Join the foundation — $120","財団に参加 — $120","Kota na fondation — $120","Jiunge na taasisi — $120"];

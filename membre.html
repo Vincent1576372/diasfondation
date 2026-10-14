@@ -40,7 +40,7 @@ button{border:0;border-radius:999px;padding:12px 18px;font:700 15px system-ui;cu
 #verso .vt{font-size:11px;letter-spacing:.2em;color:#c9d4ee}#verso .vt b{display:block;font-size:16px;letter-spacing:.1em;color:var(--gold);margin-top:2px}
 #verso .vb2{display:flex;gap:14px;align-items:center}#verso .vq{background:#fff;border-radius:10px;padding:6px;flex:none;line-height:0;color:#14213d;font-size:9px}
 #verso .vx{font-size:12px;color:#dbe4f7;line-height:1.4}#verso .vx b{color:#fff;letter-spacing:.04em}
-.fh{text-align:center;margin-top:8px}@media (prefers-reduced-motion:reduce){#fli{transition:none}}
+#carte .po{font-size:13px;color:var(--gold);font-weight:700;margin-top:2px}.fh{text-align:center;margin-top:8px}@media (prefers-reduced-motion:reduce){#fli{transition:none}}
 #ai{position:fixed;right:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:25;background:var(--gold);color:#111;border-radius:999px;padding:12px 16px;font-size:20px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}#ai span{font-size:13px;font-weight:800}
 #aip{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:460px;margin:auto;height:min(70vh,520px);background:var(--card);border:1px solid var(--line);border-radius:20px;z-index:40;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.45);overflow:hidden}
 #aip[hidden]{display:none}.ah{padding:12px 14px;background:var(--navy);color:#fff;position:relative}.ah small{display:block;color:#c9d4ee;font-size:12px}.ah button{position:absolute;right:8px;top:8px;background:none;color:#fff;font-size:24px;padding:4px 10px}
@@ -67,7 +67,7 @@ textarea{width:100%;min-height:96px;padding:13px;border:1px solid var(--line);bo
 <section class="v" id="v-home"></section>
 <section class="v" id="v-card" hidden><div id="fl" tabindex="0" role="button" aria-label="Retourner la carte"><div id="fli"><div id="carte"></div><div id="verso"></div></div></div><div class="fh small mut">Touchez la carte pour la retourner.</div>
 <div class="row"><button class="g" id="tq">QR : désactivé</button><button class="pri" style="margin:0;flex:1.2" id="pdf">Télécharger PDF</button><button class="d" id="sh">Partager</button></div>
-<div class="pan"><h3>Personnaliser</h3><label>Nom sur la carte</label><input id="pn" maxlength="40"><label>Province</label><select id="pp"></select><label>Photo</label><input id="pf" type="file" accept="image/*"><label style="display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:14px;font-weight:600"><input type="checkbox" id="pa" checked style="width:auto;margin-top:3px">Apparaître dans l'album « Déjà membres » du site (photo, nom et province).</label>
+<div class="pan"><h3>Personnaliser</h3><label>Nom sur la carte</label><input id="pn" maxlength="40"><label>Poste / profession</label><input id="pj" maxlength="40" placeholder="Ex : Infirmier, Étudiant, Entrepreneur"><label>Province</label><select id="pp"></select><label>Photo</label><input id="pf" type="file" accept="image/*"><label style="display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:14px;font-weight:600"><input type="checkbox" id="pa" checked style="width:auto;margin-top:3px">Apparaître dans l'album « Déjà membres » du site (photo, nom, poste et province).</label>
 <button class="nav" id="sv">Enregistrer</button><div id="sm" class="small" style="color:var(--blue);margin-top:10px"></div><div class="small mut" style="margin-top:10px">La photo et les choix restent sur votre téléphone. Si l'option album est cochée, une petite copie (photo, nom, province) est publiée sur le site.</div></div></section>
 <section class="v" id="v-events" hidden></section><section class="v" id="v-opps" hidden></section><section class="v" id="v-jobs" hidden></section><section class="v" id="v-offers" hidden></section><section class="v" id="v-intl" hidden></section><section class="v" id="v-ads" hidden></section><section class="v" id="v-net" hidden></section><section class="v" id="v-notif" hidden></section><section class="v" id="v-amb" hidden></section><section class="v" id="v-part" hidden></section><section class="v" id="v-set" hidden></section>
 </main></div>
@@ -257,7 +257,7 @@ function home(){const s=$("v-home");s.textContent="";const p=prof();s.append(E("
 function draw(){const c=$("carte"),p=prof(),nm=p.nom||M.nom,pv=p.prov||M.prov;c.textContent="";
  const h=E("div","h"),im=E("img");im.src=LOGO;im.alt="";const l=E("div","l");l.append(E("small",null,"DIAS FONDATION"),E("b",null,"MEMBRE PREMIUM"));h.append(im,l);
  const b=E("div","b"),ph=E("div","ph");if(p.photo)ph.style.backgroundImage="url("+p.photo+")";else ph.textContent="👤";
- const t=E("div");t.append(E("div","n",nm),E("div","m",pv+" • "+M.ref));const bd=E("div","bd");bd.append(E("span",null,"VÉRIFIÉ"),E("span",null,String(M.an)));t.append(bd);b.append(ph,t);c.append(h,b);
+ const t=E("div");t.append(E("div","n",nm));if(p.poste)t.append(E("div","po",p.poste));t.append(E("div","m",pv+" • "+M.ref));const bd=E("div","bd");bd.append(E("span",null,"VÉRIFIÉ"),E("span",null,String(M.an)));t.append(bd);b.append(ph,t);c.append(h,b);
  M.url=location.origin+location.pathname.replace(/[^\/]*$/,"")+"verify.html?ref="+encodeURIComponent(M.ref);
  if(qrOn){const q=E("div","q");c.append(q);if(window.QRCode)new QRCode(q,{text:M.url,width:104,height:104});else q.textContent=M.url}
  c.append(E("div","f","Servir l'humain, bâtir l'avenir"));drawVerso()}
@@ -272,14 +272,14 @@ function thumb(src){return new Promise(ok=>{const i=new Image();i.onload=()=>{co
 async function syncAlbum(force){const p=prof(),r=doc(DB,"membres_publics",await pid(M.ref));
  if(!albOn()){if(force){await deleteDoc(r);return "off"}return ""}
  if(!p.photo)return "";const photo=await thumb(p.photo);if(!photo)return "";
- const nom=(p.nom||M.nom).slice(0,60),ville=(p.prov||M.prov||"").slice(0,40),s=await getDoc(r);
- if(s.exists())await updateDoc(r,{nom,ville,photo});else await setDoc(r,{nom,ville,annee:String(M.an),valideLe:new Date(),photo});return "on"}
+ const nom=(p.nom||M.nom).slice(0,60),ville=(p.prov||M.prov||"").slice(0,40),poste=(p.poste||"").slice(0,40),s=await getDoc(r);
+ if(s.exists())await updateDoc(r,{nom,ville,poste,photo});else await setDoc(r,{nom,ville,poste,annee:String(M.an),valideLe:new Date(),photo});return "on"}
 async function albumGo(force,fb){try{const r=await syncAlbum(force);if(r==="on")$("sm").textContent="Album mis à jour.";else if(r==="off")$("sm").textContent="Retiré de l'album.";else if(fb)$("sm").textContent=fb}catch(e){$("sm").textContent="Album indisponible pour le moment."}}
 $("tq").onclick=()=>{qrOn=!qrOn;$("tq").textContent="QR : "+(qrOn?"activé":"désactivé");draw()};
 $("pdf").onclick=()=>print();$("bell").onclick=()=>go("notif");
 $("sh").onclick=()=>{if(navigator.share)navigator.share({title:"DIAS FONDATION",text:"Carte membre DIAS FONDATION",url:M.url}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(M.url).then(()=>{$("sm").textContent="Lien de vérification copié."});else $("sm").textContent=M.url};
 $("pf").onchange=function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(i.width,i.height),cv=document.createElement("canvas");cv.width=cv.height=240;cv.getContext("2d").drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,240,240);const p=prof();p.photo=cv.toDataURL("image/jpeg",.8);ls("dias_p_"+M.ref,JSON.stringify(p));draw();$("sm").textContent="Photo ajoutée.";albumGo(false,"Photo ajoutée.")};i.src=r.result};r.readAsDataURL(f)};
-$("sv").onclick=()=>{const p=prof();p.nom=$("pn").value.trim().slice(0,40)||M.nom;p.prov=$("pp").value;ls("dias_p_"+M.ref,JSON.stringify(p));ls("dias_alb_"+M.ref,$("pa").checked?"1":"0");draw();$("sm").textContent="Enregistré sur ce téléphone.";albumGo(true,"Enregistré sur ce téléphone.")};
+$("sv").onclick=()=>{const p=prof();p.nom=$("pn").value.trim().slice(0,40)||M.nom;p.poste=$("pj").value.trim().slice(0,40);p.prov=$("pp").value;ls("dias_p_"+M.ref,JSON.stringify(p));ls("dias_alb_"+M.ref,$("pa").checked?"1":"0");draw();$("sm").textContent="Enregistré sur ce téléphone.";albumGo(true,"Enregistré sur ce téléphone.")};
 if(!FB.apiKey||!FB.projectId){say("L'espace membre n'est pas encore activé.",1);$("go").disabled=true}
 else{
 const app=initializeApp(FB),auth=getAuth(app),db=getFirestore(app);auth.languageCode="fr";DB=db;AUTH=auth;let up=false;
@@ -305,7 +305,7 @@ onAuthStateChanged(auth,async u=>{if(!u){showS("auth");$("hb").hidden=true;$("be
   
   const pv=PROV.find(p=>(v.ville||"").toLowerCase().includes(p.toLowerCase()))||"Kinshasa";
   M={ref:v.ref,nom:v.nom||"",prov:pv,an:v.traiteLe?new Date(v.traiteLe).getFullYear():new Date().getFullYear()};
-  const p=prof();$("pn").value=p.nom||M.nom;$("pp").value=p.prov||pv;$("pa").checked=albOn();
+  const p=prof();$("pn").value=p.nom||M.nom;$("pp").value=p.prov||pv;$("pa").checked=albOn();$("pj").value=p.poste||"";
   try{const q=await getDocs(query(collection(db,"publications"),where("publie","==",true)));pubs=q.docs.map(d=>d.data()).sort((a,b)=>ms(b.createdAt)-ms(a.createdAt));pubErr=false}catch(e){pubs=[];pubErr=true}
   showS("app");$("hb").hidden=false;$("bell").hidden=false;$("ai").hidden=false;beat();await loadNotifs();clearInterval(window.__nt);window.__nt=setInterval(loadNotifs,120000);go("home")}
  catch(e){gate("Impossible de charger votre adhésion. Réessayez plus tard.")}});
